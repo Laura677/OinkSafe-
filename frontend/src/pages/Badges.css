@@ -1,0 +1,557 @@
+/* ========================================
+   OINKSAFE - PÁGINA DE BADGES
+======================================== */
+
+.pagina-badges {
+  min-height: 100vh;
+  background-color: #111111;
+  color: #f5f5f5;
+}
+
+.badges-container,
+.badges-container * {
+  box-sizing: border-box;
+}
+
+/* ========================================
+   CONTAINER PRINCIPAL
+======================================== */
+
+.badges-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 24px 60px;
+}
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.badges-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.badges-cabecalho h1 {
+  margin: 0 0 10px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.badges-introducao {
+  max-width: 650px;
+  margin: 0;
+  color: #a8a8a8;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   BOTÃO VOLTAR
+======================================== */
+
+.badges-voltar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 18px;
+
+  border: 1px solid #343434;
+  border-radius: 10px;
+
+  background-color: #232323;
+  color: #f5f5f5;
+
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  transition: background-color 0.2s ease;
+}
+
+.badges-voltar:hover {
+  background-color: #303030;
+}
+
+/* ========================================
+   RESUMO DO PROGRESSO
+======================================== */
+
+.badges-resumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 35px;
+
+  width: 100%;
+  padding: 28px;
+
+  margin-bottom: 30px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 16px;
+}
+
+.badges-resumo-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.badges-resumo h2 {
+  margin: 0 0 10px;
+  font-size: 21px;
+  color: #f5f5f5;
+}
+
+.badges-resumo p {
+  max-width: 580px;
+  margin: 0 0 20px;
+
+  color: #a8a8a8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   BARRA DE PROGRESSO
+======================================== */
+
+.badges-progresso {
+  width: 100%;
+  max-width: 550px;
+  height: 12px;
+
+  overflow: hidden;
+
+  background-color: #343434;
+  border-radius: 20px;
+}
+
+.badges-progresso-preenchido {
+  height: 100%;
+  width: 0;
+
+  background-color: #69ff00;
+  border-radius: 20px;
+
+  transition: width 0.4s ease;
+}
+
+.badges-porcentagem {
+  display: inline-block;
+  margin-top: 10px;
+
+  color: #69ff00;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ========================================
+   CONTADOR DE CONQUISTAS
+======================================== */
+
+.badges-contador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  min-width: 170px;
+
+  padding: 15px;
+  text-align: center;
+}
+
+.badges-contador strong {
+  color: #69ff00;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.badges-contador span {
+  margin-top: 6px;
+
+  color: #a8a8a8;
+  font-size: 13px;
+}
+
+/* ========================================
+   GRID DE BADGES
+======================================== */
+
+.badges-grade {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 24px;
+
+  width: 100%;
+}
+
+/* ========================================
+   CARD DA BADGE
+======================================== */
+
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 0;
+  min-height: 380px;
+
+  padding: 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 16px;
+
+  text-align: center;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.badge-card:hover {
+  background-color: #232323;
+  transform: translateY(-3px);
+}
+
+/* ========================================
+   BADGE CONQUISTADA
+======================================== */
+
+.badge-card-conquistada {
+  border-color: #507d35;
+}
+
+.badge-card-conquistada:hover {
+  border-color: #69ff00;
+}
+
+/* ========================================
+   BADGE BLOQUEADA
+======================================== */
+
+.badge-card-bloqueada {
+  border-color: #343434;
+}
+
+/* ========================================
+   STATUS
+======================================== */
+
+.badge-status {
+  align-self: flex-end;
+
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* CONQUISTADA */
+
+.badge-status-conquistada {
+  background-color: #22351c;
+  color: #8cff4d;
+}
+
+/* BLOQUEADA */
+
+.badge-status-bloqueada {
+  background-color: #303030;
+  color: #a8a8a8;
+}
+
+/* ========================================
+   ÁREA DA IMAGEM
+======================================== */
+
+.badge-imagem-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 170px;
+  height: 170px;
+
+  max-width: 100%;
+
+  margin: 15px 0 20px;
+}
+
+/* ========================================
+   IMAGEM DA MEDALHA
+======================================== */
+
+.badge-imagem {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+/* ========================================
+   IMAGEM ALTERNATIVA
+======================================== */
+
+.badge-icone-alternativo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  font-size: 85px;
+}
+
+/* ========================================
+   EFEITO DE BADGE BLOQUEADA
+======================================== */
+
+.badge-card-bloqueada .badge-imagem-area {
+  filter: grayscale(100%);
+  opacity: 0.4;
+}
+
+/* ========================================
+   NOME DA BADGE
+======================================== */
+
+.badge-card h2 {
+  margin: 0 0 12px;
+
+  color: #f5f5f5;
+
+  font-size: 21px;
+  font-weight: 600;
+}
+
+/* ========================================
+   DESCRIÇÃO
+======================================== */
+
+.badge-descricao {
+  margin: 0 0 24px;
+
+  color: #a8a8a8;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   DATA DA CONQUISTA
+======================================== */
+
+.badge-data {
+  margin: auto 0 0;
+
+  color: #8cff4d;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ========================================
+   BOTÕES
+======================================== */
+
+.badges-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 18px;
+
+  border: 1px solid #454545;
+  border-radius: 10px;
+
+  background-color: #292929;
+  color: #f5f5f5;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  text-decoration: none;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.badge-card .badges-botao {
+  margin-top: auto;
+}
+
+.badges-botao:hover {
+  background-color: #343434;
+  border-color: #69ff00;
+}
+
+/* ========================================
+   ACESSIBILIDADE
+======================================== */
+
+.badges-botao:focus-visible,
+.badges-voltar:focus-visible {
+  outline: 3px solid #69ff00;
+  outline-offset: 4px;
+}
+
+/* ========================================
+   CARREGAMENTO E ERROS
+======================================== */
+
+.badges-aviso {
+  padding: 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 14px;
+
+  color: #cccccc;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.badges-erro {
+  border-color: #a85858;
+}
+
+.badges-erro p {
+  margin: 0 0 16px;
+}
+
+/* ========================================
+   RESPONSIVIDADE - TABLET
+======================================== */
+
+@media (max-width: 900px) {
+
+  .badges-grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .badges-resumo {
+    gap: 20px;
+  }
+
+  .badge-imagem-area {
+    width: 150px;
+    height: 150px;
+  }
+
+}
+
+/* ========================================
+   RESPONSIVIDADE - CELULAR
+======================================== */
+
+@media (max-width: 600px) {
+
+  .badges-container {
+    padding: 24px 16px 40px;
+  }
+
+  .badges-cabecalho {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .badges-cabecalho h1 {
+    font-size: 28px;
+  }
+
+  .badges-voltar {
+    width: 100%;
+  }
+
+  .badges-resumo {
+    flex-direction: column;
+    align-items: flex-start;
+
+    padding: 22px;
+  }
+
+  .badges-resumo-texto {
+    width: 100%;
+  }
+
+  .badges-progresso {
+    max-width: 100%;
+  }
+
+  .badges-contador {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+  }
+
+  .badges-grade {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .badge-card {
+    min-height: 350px;
+    padding: 22px;
+  }
+
+  .badge-imagem-area {
+    width: 150px;
+    height: 150px;
+  }
+
+  .badge-card h2 {
+    font-size: 20px;
+  }
+
+}
+
+/* ========================================
+   REDUZIR ANIMAÇÕES
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .badge-card,
+  .badges-progresso-preenchido,
+  .badges-botao,
+  .badges-voltar {
+    transition: none;
+  }
+
+  .badge-card:hover {
+    transform: none;
+  }
+
+}

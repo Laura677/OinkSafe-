@@ -1,0 +1,745 @@
+/* =========================================================
+   PÁGINA GASTOS
+========================================================= */
+
+.gastos {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+
+  padding: 32px clamp(16px, 3vw, 40px) 60px;
+
+  background-color: #111111;
+  color: #f5f5f5;
+}
+
+
+/* =========================================================
+   LARGURA PADRÃO
+========================================================= */
+
+.gastos .gastos-cabecalho,
+.gastos .gastos-filtros,
+.gastos .gastos-resumo,
+.gastos .gastos-bloco {
+  width: 100%;
+  max-width: 1200px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.gastos .gastos-cabecalho {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.gastos .gastos-cabecalho-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+
+.gastos .gastos-cabecalho h1 {
+  margin: 0 0 5px;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 700;
+}
+
+
+.gastos .gastos-cabecalho p {
+  margin: 0;
+
+  color: #a8a8a8;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   PORQUINHO
+========================================================= */
+
+.gastos .porquinho-gastos {
+  width: 135px;
+  height: 135px;
+
+  display: block;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+
+  margin-right: 8px;
+}
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.gastos .gastos-filtros {
+  display: flex;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+
+.gastos .gastos-filtros select {
+  min-width: 180px;
+
+  padding: 11px 14px;
+
+  background-color: #1c1c1c;
+  color: #f5f5f5;
+
+  border: 1px solid #343434;
+  border-radius: 10px;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+
+.gastos .gastos-filtros select:hover {
+  border-color: #4a4a4a;
+}
+
+
+.gastos .gastos-filtros select:focus {
+  border-color: #9d3cff;
+}
+
+
+/* =========================================================
+   CARDS RESUMO
+========================================================= */
+
+.gastos .gastos-resumo {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 22px;
+}
+
+
+.gastos .gastos-card-resumo {
+  min-height: 130px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 0, 0, 0.25);
+
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+
+.gastos .gastos-card-resumo:hover {
+  border-color: #454545;
+
+  transform:
+    translateY(-1px);
+}
+
+
+.gastos .gastos-card-resumo span {
+  color: #d5d5d5;
+
+  font-size: 14px;
+}
+
+
+.gastos .gastos-card-resumo strong {
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 700;
+}
+
+
+.gastos .gastos-card-resumo small {
+  color: #8a8a8a;
+
+  font-size: 12px;
+}
+
+
+.gastos .gasto-destaque-roxo {
+  color: #9d3cff;
+}
+
+
+.gastos .gasto-destaque-verde {
+  color: #69ff00;
+}
+
+
+/* =========================================================
+   BLOCOS
+========================================================= */
+
+.gastos .gastos-bloco {
+  margin-top: 22px;
+
+  padding: 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 0, 0, 0.22);
+}
+
+
+.gastos .gastos-bloco-topo {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+
+.gastos .gastos-bloco-topo h2 {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 600;
+}
+
+
+.gastos .gastos-bloco-topo p {
+  margin: 5px 0 0;
+
+  color: #a8a8a8;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ÍCONE DO BLOCO NOVO GASTO
+========================================================= */
+
+.gastos .icone-novo-gasto {
+  width: 46px;
+  height: 46px;
+
+  display: block;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   GRÁFICO
+========================================================= */
+
+.gastos .gastos-grafico {
+  width: 100%;
+  height: 280px;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+}
+
+
+.gastos .gastos-grafico canvas {
+  width: 100% !important;
+
+  max-width: 560px;
+
+  height: 100% !important;
+}
+
+
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
+
+.gastos .form-gastos {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+.gastos .campo-gasto {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+.gastos .campo-gasto label {
+  color: #d5d5d5;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.gastos .campo-gasto input,
+.gastos .campo-gasto select {
+  width: 100%;
+
+  padding: 13px 14px;
+
+  background-color: #161616;
+  color: #f5f5f5;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 9px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+
+.gastos .campo-gasto input::placeholder {
+  color: #6f6f6f;
+}
+
+
+.gastos .campo-gasto input:hover,
+.gastos .campo-gasto select:hover {
+  border-color: #4a4a4a;
+}
+
+
+.gastos .campo-gasto input:focus,
+.gastos .campo-gasto select:focus {
+  border-color: #9d3cff;
+}
+
+
+/* =========================================================
+   BOTÃO ADICIONAR GASTO
+========================================================= */
+
+.gastos .btn-adicionar-gasto {
+  grid-column: 1 / -1;
+
+  width: 100%;
+
+  min-height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 12px 14px;
+
+  margin-top: 4px;
+
+  border: 1px solid #9d3cff;
+  border-radius: 9px;
+
+  background-color: #9d3cff;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+
+.gastos .btn-adicionar-gasto:hover {
+  opacity: 0.9;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* =========================================================
+   ÍCONE DO BOTÃO ADICIONAR GASTO
+========================================================= */
+
+.gastos .icone-botao-gasto {
+  width: 25px;
+  height: 25px;
+
+  display: block;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   LISTA
+========================================================= */
+
+.gastos .gastos-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+
+.gastos .gasto-item {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 15px 17px;
+
+  background-color: #232323;
+
+  border: 1px solid #54306d;
+  border-radius: 10px;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+
+.gastos .gasto-item:hover {
+  background-color: #262626;
+
+  border-color: #71468d;
+}
+
+
+.gastos .gasto-item-esquerda {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   ÍCONE DA LISTA DE GASTOS
+========================================================= */
+
+.gastos .gasto-icone {
+  width: 42px;
+  min-width: 42px;
+
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 11px;
+
+  background-color:
+    rgba(157, 60, 255, 0.08);
+
+  border:
+    1px solid
+    rgba(157, 60, 255, 0.18);
+}
+
+
+.gastos .gasto-icone img {
+  width: 30px;
+  height: 30px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO GASTO
+========================================================= */
+
+.gastos .gasto-informacoes {
+  min-width: 0;
+}
+
+
+.gastos .gasto-informacoes strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #f5f5f5;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.gastos .gasto-informacoes p {
+  margin: 0 0 2px;
+
+  color: #a8a8a8;
+
+  font-size: 12px;
+}
+
+
+.gastos .gasto-informacoes small {
+  color: #6f6f6f;
+
+  font-size: 11px;
+}
+
+
+.gastos .gasto-valor {
+  color: #9d3cff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   VAZIO
+========================================================= */
+
+.gastos .gastos-vazio {
+  min-height: 150px;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  color: #8a8a8a;
+
+  text-align: center;
+}
+
+
+.gastos .gastos-vazio p {
+  margin: 0;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - NOTEBOOK / TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .gastos {
+    padding: 24px 16px 50px;
+  }
+
+
+  .gastos .gastos-cabecalho {
+    min-height: 100px;
+  }
+
+
+  .gastos .porquinho-gastos {
+    width: 105px;
+    height: 105px;
+
+    margin-right: 0;
+  }
+
+
+  .gastos .gastos-resumo {
+    grid-template-columns: 1fr;
+  }
+
+
+  .gastos .form-gastos {
+    grid-template-columns: 1fr;
+  }
+
+
+  .gastos .btn-adicionar-gasto {
+    grid-column: auto;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - CELULAR
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .gastos .gastos-cabecalho {
+    min-height: 85px;
+
+    gap: 12px;
+  }
+
+
+  .gastos .gastos-cabecalho h1 {
+    font-size: 26px;
+  }
+
+
+  .gastos .gastos-cabecalho p {
+    font-size: 13px;
+  }
+
+
+  .gastos .porquinho-gastos {
+    width: 78px;
+    height: 78px;
+  }
+
+
+  .gastos .gastos-filtros {
+    flex-direction: column;
+  }
+
+
+  .gastos .gastos-filtros select {
+    width: 100%;
+  }
+
+
+  .gastos .gastos-bloco {
+    padding: 18px;
+  }
+
+
+  .gastos .icone-novo-gasto {
+    width: 38px;
+    height: 38px;
+  }
+
+
+  .gastos .gasto-icone {
+    width: 38px;
+    min-width: 38px;
+
+    height: 38px;
+  }
+
+
+  .gastos .gasto-icone img {
+    width: 27px;
+    height: 27px;
+  }
+
+
+  .gastos .gastos-grafico {
+    height: 250px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE - CELULAR PEQUENO
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .gastos .gasto-item {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .gastos .gasto-valor {
+    margin-left: 50px;
+  }
+
+
+  .gastos .gastos-bloco-topo {
+    align-items: flex-start;
+  }
+
+}

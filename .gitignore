@@ -1,0 +1,45 @@
+
+# ==========================
+# OINKSAFE - GITIGNORE
+# ==========================
+
+# Node.js / React / Vite
+node_modules/
+dist/
+.vite/
+coverage/
+npm-debug.log*
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Credenciais e certificados
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Java / Spring Boot
+target/
+build/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.vscode/
+.idea/
+.settings/
+.classpath
+.project
+
+# Logs
+*.log
+logs/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

@@ -1,0 +1,918 @@
+/* =========================================================
+   PÁGINA DE METAS
+========================================================= */
+
+.metas-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+
+  padding: 32px clamp(16px, 3vw, 40px) 60px;
+
+  background-color: #111111;
+  color: #f5f5f5;
+}
+
+
+/* =========================================================
+   LARGURA PADRÃO
+========================================================= */
+
+.metas-page .metas-topo,
+.metas-page .metas-abas,
+.metas-page .metas-lista,
+.metas-page .form-meta,
+.metas-page .btn-adicionar-meta {
+  width: 100%;
+  max-width: 1200px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =========================================================
+   TOPO DA PÁGINA
+========================================================= */
+
+.metas-page .metas-topo {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  min-height: 120px;
+
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.metas-page .metas-titulo {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.metas-page .metas-titulo h1 {
+  margin: 0 0 6px;
+
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 700;
+}
+
+
+.metas-page .metas-titulo p {
+  margin: 0;
+
+  color: #a8a8a8;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   PORQUINHO
+========================================================= */
+
+.metas-page .porquinho-metas {
+  width: 135px;
+  height: 135px;
+
+  display: block;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+
+  margin-right: 8px;
+}
+
+
+/* =========================================================
+   ABAS
+========================================================= */
+
+.metas-page .metas-abas {
+  display: flex;
+
+  gap: 28px;
+
+  margin-bottom: 24px;
+
+  border-bottom: 1px solid #343434;
+}
+
+
+.metas-page .aba {
+  position: relative;
+
+  padding: 11px 2px 12px;
+
+  background: none;
+
+  border: none;
+
+  color: #8e8e8e;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: color 0.2s;
+}
+
+
+.metas-page .aba:hover {
+  color: #f5f5f5;
+}
+
+
+.metas-page .aba.ativa {
+  color: #69ff00;
+}
+
+
+.metas-page .aba.ativa::after {
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -1px;
+
+  height: 2px;
+
+  background-color: #69ff00;
+
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   FORMULÁRIO NOVA META
+========================================================= */
+
+.metas-page .form-meta {
+  margin-bottom: 24px;
+
+  padding: 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 16px;
+}
+
+
+.metas-page .form-meta h2 {
+  margin: 0 0 22px;
+
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+.metas-page .form-meta-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+.metas-page .campo-meta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+.metas-page .campo-meta label {
+  color: #d5d5d5;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.metas-page .campo-meta input {
+  width: 100%;
+
+  padding: 13px 14px;
+
+  background-color: #161616;
+  color: #f5f5f5;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 9px;
+
+  outline: none;
+
+  font-size: 14px;
+
+  transition: border-color 0.2s;
+}
+
+
+.metas-page .campo-meta input::placeholder {
+  color: #6f6f6f;
+}
+
+
+.metas-page .campo-meta input:focus {
+  border-color: #69ff00;
+}
+
+
+/* =========================================================
+   BOTÕES DO FORMULÁRIO
+========================================================= */
+
+.metas-page .form-meta-botoes {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 22px;
+}
+
+
+.metas-page .btn-salvar-meta,
+.metas-page .btn-cancelar-meta {
+  padding: 11px 20px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+.metas-page .btn-salvar-meta {
+  background-color: #69ff00;
+
+  border: 1px solid #69ff00;
+
+  color: #111111;
+}
+
+
+.metas-page .btn-salvar-meta:hover {
+  opacity: 0.9;
+}
+
+
+.metas-page .btn-cancelar-meta {
+  background-color: transparent;
+
+  border: 1px solid #505050;
+
+  color: #a8a8a8;
+}
+
+
+.metas-page .btn-cancelar-meta:hover {
+  border-color: #777777;
+
+  color: #f5f5f5;
+}
+
+
+/* =========================================================
+   LISTA DE METAS
+========================================================= */
+
+.metas-page .metas-lista {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+
+/* =========================================================
+   CARD DA META
+========================================================= */
+
+.metas-page .meta-card {
+  width: 100%;
+
+  padding: 22px 24px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+
+.metas-page .meta-card:hover {
+  border-color: #454545;
+}
+
+
+/* =========================================================
+   CONTEÚDO PRINCIPAL
+========================================================= */
+
+.metas-page .meta-conteudo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+}
+
+
+/* =========================================================
+   ÍCONE PERSONALIZADO DA META
+========================================================= */
+
+.metas-page .meta-icone-personalizado {
+  width: 58px;
+  min-width: 58px;
+
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background-color:
+    rgba(105, 255, 0, 0.06);
+
+  border:
+    1px solid
+    rgba(105, 255, 0, 0.18);
+
+  border-radius: 14px;
+}
+
+
+.metas-page .meta-icone-personalizado img {
+  width: 42px;
+  height: 42px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DA META
+========================================================= */
+
+.metas-page .meta-info {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.metas-page .meta-info h3 {
+  margin: 0 0 8px;
+
+  color: #f5f5f5;
+
+  font-size: 17px;
+  font-weight: 600;
+}
+
+
+.metas-page .meta-info strong {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #69ff00;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+.metas-page .meta-info p {
+  margin: 0;
+
+  color: #a8a8a8;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   PROGRESSO
+========================================================= */
+
+.metas-page .meta-progresso {
+  width: min(46%, 520px);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+.metas-page .barra {
+  flex: 1;
+
+  height: 10px;
+
+  background-color: #232323;
+
+  border: 1px solid #343434;
+  border-radius: 20px;
+
+  overflow: hidden;
+}
+
+
+.metas-page .barra-preenchida {
+  height: 100%;
+
+  background-color: #69ff00;
+
+  border-radius: 20px;
+
+  transition: width 0.3s ease;
+}
+
+
+.metas-page .meta-progresso span {
+  min-width: 44px;
+
+  color: #69ff00;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+
+.metas-page .meta-acoes {
+  display: flex;
+
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 18px;
+  padding-top: 16px;
+
+  border-top: 1px solid #2f2f2f;
+}
+
+
+.metas-page .meta-acoes button {
+  min-height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 8px 14px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    opacity 0.2s;
+}
+
+
+/* =========================================================
+   ÍCONES DOS BOTÕES
+========================================================= */
+
+.metas-page .icone-botao-meta {
+  width: 22px;
+  height: 22px;
+
+  display: block;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   ADICIONAR VALOR
+========================================================= */
+
+.metas-page .btn-adicionar-valor {
+  background-color: transparent;
+
+  border: 1px solid #69ff00;
+
+  color: #69ff00;
+}
+
+
+.metas-page .btn-adicionar-valor:hover {
+  background-color:
+    rgba(105, 255, 0, 0.10);
+}
+
+
+/* =========================================================
+   RETIRAR VALOR
+========================================================= */
+
+.metas-page .btn-resgatar {
+  background-color: transparent;
+
+  border: 1px solid #9d3cff;
+
+  color: #9d3cff;
+}
+
+
+.metas-page .btn-resgatar:hover {
+  background-color:
+    rgba(157, 60, 255, 0.12);
+}
+
+
+/* =========================================================
+   EXCLUIR
+========================================================= */
+
+.metas-page .btn-excluir-meta {
+  background-color: transparent;
+
+  border: 1px solid #555555;
+
+  color: #9c9c9c;
+}
+
+
+.metas-page .btn-excluir-meta:hover {
+  border-color: #9d3cff;
+
+  color: #9d3cff;
+}
+
+
+/* =========================================================
+   ÁREA DE MOVIMENTAÇÃO
+========================================================= */
+
+.metas-page .adicionar-valor-area {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 14px;
+  padding-top: 14px;
+
+  border-top: 1px solid #2f2f2f;
+}
+
+
+.metas-page .adicionar-valor-area input {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 11px 12px;
+
+  background-color: #161616;
+  color: #f5f5f5;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+
+  outline: none;
+
+  font-size: 14px;
+}
+
+
+.metas-page .adicionar-valor-area input:focus {
+  border-color: #69ff00;
+}
+
+
+/* =========================================================
+   BOTÕES DA MOVIMENTAÇÃO
+========================================================= */
+
+.metas-page .adicionar-valor-area button {
+  padding: 10px 15px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+.metas-page .btn-confirmar-valor {
+  background-color: #69ff00;
+
+  border: 1px solid #69ff00;
+
+  color: #111111;
+}
+
+
+.metas-page .btn-confirmar-valor:hover {
+  opacity: 0.9;
+}
+
+
+.metas-page
+.adicionar-valor-area
+.btn-cancelar-valor {
+  background-color: transparent;
+
+  border: 1px solid #555555;
+
+  color: #a8a8a8;
+}
+
+
+.metas-page
+.adicionar-valor-area
+.btn-cancelar-valor:hover {
+  border-color: #777777;
+
+  color: #f5f5f5;
+}
+
+
+/* =========================================================
+   SEM METAS
+========================================================= */
+
+.metas-page .sem-metas {
+  width: 100%;
+
+  min-height: 160px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 35px 20px;
+
+  background-color: #1c1c1c;
+
+  border: 1px solid #343434;
+  border-radius: 14px;
+
+  text-align: center;
+}
+
+
+.metas-page .sem-metas p {
+  margin: 0;
+
+  color: #a8a8a8;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   BOTÃO NOVA META
+========================================================= */
+
+.metas-page .btn-adicionar-meta {
+  display: block;
+
+  margin-top: 18px;
+
+  padding: 18px;
+
+  background-color: transparent;
+
+  border: 1px dashed #69ff00;
+  border-radius: 12px;
+
+  color: #69ff00;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+
+.metas-page .btn-adicionar-meta:hover {
+  background-color:
+    rgba(105, 255, 0, 0.08);
+
+  border-color: #8aff3e;
+}
+
+
+/* =========================================================
+   NOTEBOOK / TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .metas-page {
+    padding: 24px 16px 50px;
+  }
+
+
+  .metas-page .metas-topo {
+    min-height: 100px;
+  }
+
+
+  .metas-page .porquinho-metas {
+    width: 105px;
+    height: 105px;
+
+    margin-right: 0;
+  }
+
+
+  .metas-page .meta-conteudo {
+    flex-wrap: wrap;
+
+    align-items: flex-start;
+
+    gap: 18px;
+  }
+
+
+  .metas-page .meta-info {
+    flex: 1;
+  }
+
+
+  .metas-page .meta-progresso {
+    width: 100%;
+
+    flex-basis: 100%;
+  }
+
+
+  .metas-page .form-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .metas-page .metas-topo {
+    min-height: 85px;
+
+    gap: 12px;
+  }
+
+
+  .metas-page .porquinho-metas {
+    width: 78px;
+    height: 78px;
+  }
+
+
+  .metas-page .metas-titulo h1 {
+    font-size: 26px;
+  }
+
+
+  .metas-page .metas-titulo p {
+    font-size: 13px;
+  }
+
+
+  .metas-page .metas-abas {
+    gap: 18px;
+  }
+
+
+  .metas-page .aba {
+    font-size: 13px;
+  }
+
+
+  .metas-page .meta-card {
+    padding: 18px;
+  }
+
+
+  .metas-page .meta-conteudo {
+    align-items: flex-start;
+  }
+
+
+  .metas-page .meta-icone-personalizado {
+    width: 48px;
+    min-width: 48px;
+
+    height: 48px;
+  }
+
+
+  .metas-page .meta-icone-personalizado img {
+    width: 35px;
+    height: 35px;
+  }
+
+
+  .metas-page .meta-acoes {
+    justify-content: flex-start;
+
+    flex-wrap: wrap;
+  }
+
+
+  .metas-page .meta-acoes button {
+    flex: 1;
+
+    min-width: 135px;
+  }
+
+
+  .metas-page .icone-botao-meta {
+    width: 20px;
+    height: 20px;
+  }
+
+
+  .metas-page .adicionar-valor-area {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+
+  .metas-page .adicionar-valor-area button {
+    width: 100%;
+  }
+
+
+  .metas-page .form-meta-botoes {
+    flex-direction: column-reverse;
+  }
+
+
+  .metas-page .form-meta-botoes button {
+    width: 100%;
+  }
+
+}

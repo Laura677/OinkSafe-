@@ -1,0 +1,206 @@
+:root {
+    --verde-menta: #B5EADB;
+    --azul-escuro: #3A4B7C;
+    --btn-roxo: #D5BDE8;
+    --btn-verde: #D7E5AA;
+    --card-cinza: #E2E2E2;
+    --card-bege: #EAD0A5;
+    --font-family: 'Nunito', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--dark-blue);
+}
+
+/* Tipografia e Cores Base */
+h1, h2, h3, h4, .navbar-brand, .nav-link {
+    color: var(--azul-escuro) !important;
+    font-weight: 700;
+}
+
+.Logo {
+    max-width: 80px;
+    max-height: 80px;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--verde-menta);
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #E279A3 !important;
+    text-shadow: 1px 1px 0px var(--verde-menta), -1px -1px 0px var(--azul-escuro);
+}
+
+.nav-link {
+    margin: 0 15px;
+    font-size: 1.1rem;
+}
+
+.btn-entrar {
+    border: 1px solid var(--azul-escuro);
+    border-radius: 20px;
+    padding: 5px 20px;
+    background: transparent;
+    color: var(--azul-escuro);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.btn-entrar:hover {
+    background-color: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(58, 75, 124, 0.2); 
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #A0A0A0;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 80px 0;
+}
+
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: 40px;
+    line-height: 1.2;
+}
+
+.btn-custom {
+    border-radius: 15px;
+    padding: 10px 30px;
+    font-weight: 600;
+    border: none;
+    color: var(--azul-escuro);
+    margin-right: 15px;
+    transition: all 0.3s ease;
+}
+.btn-custom:hover {
+    transform: translateY(-3px); 
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); 
+    filter: brightness(0.95); 
+}
+
+.btn-purple { background-color: var(--btn-roxo); }
+.btn-green { background-color: var(--btn-verde); }
+
+/* Metas Section */
+.section-title {
+    margin-top: 30px;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.card-meta {
+    background-color: var(--card-cinza);
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.progress-custom {
+    height: 12px;
+    border-radius: 10px;
+    background-color: white;
+    margin-top: 15px;
+}
+
+.progress-bar-custom {
+    background-color: var(--btn-verde);
+    border-radius: 10px;
+}
+
+.progress-text {
+    font-weight: 800;
+    margin-left: 10px;
+}
+
+/* Tabelas Section */
+.card-grafico {
+    background-color: var(--card-bege);
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+/* Efeito de Hover para todos os cards */
+.card-meta:hover, 
+.card-grafico:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(58, 75, 124, 0.15); 
+}
+
+/* Footer */
+footer {
+    background-color: var(--verde-menta);
+    padding: 30px 0;
+    margin-top: 50px;
+    font-size: 0.9rem;
+}
+
+/* Card de Adicionar Meta */
+.card-add-meta {
+    background-color: transparent; 
+    border: 3px dashed #A0A0A0;
+    cursor: pointer; 
+    min-height: 155px; 
+}
+
+/* Efeito Hover do Card de Adicionar Meta */
+.card-add-meta:hover {
+    background-color: rgba(58, 75, 124, 0.03);
+    border-color: var(--azul-escuro);
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(58, 75, 124, 0.15);
+}
+
+/* Estilo do botão de + */
+.plus-icon {
+    font-size: 5rem;
+    color: #A0A0A0;
+    font-weight: 300;
+    line-height: 0.5;
+    transition: color 0.3s ease;
+}
+
+/* Muda a cor do + quando o mouse passa pelo card */
+.card-add-meta:hover .plus-icon {
+    color: var(--azul-escuro);
+}
+
+/* Seletor de Cores do Modal */
+.color-selector {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid transparent; /* Borda invisível por padrão */
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+/* O que acontece quando o input de rádio oculto é selecionado (checked) */
+.btn-check:checked + .color-selector {
+    border: 3px solid var(--azul-escuro); /* Borda azul escura para destacar */
+    transform: scale(1.15); /* Aumenta a bolinha um pouquinho */
+    box-shadow: 0 4px 8px rgba(58, 75, 124, 0.3); /* Sombra para dar profundidade */
+}
+
+/* Efeito de hover suave nas bolinhas que não estão selecionadas */
+.color-selector:hover {
+    transform: scale(1.1);
+}

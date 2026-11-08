@@ -1,0 +1,54 @@
+.porquinho-decorativo {
+  position: fixed;
+
+  right: 24px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+
+.porquinho-decorativo img {
+  width: 125px;
+  height: 125px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+/* Notebook */
+
+@media (max-width: 1000px) {
+
+  .porquinho-decorativo {
+    right: 14px;
+  }
+
+
+  .porquinho-decorativo img {
+    width: 95px;
+    height: 95px;
+  }
+}
+
+
+/* Celular */
+
+@media (max-width: 650px) {
+
+  .porquinho-decorativo {
+    right: 8px;
+  }
+
+
+  .porquinho-decorativo img {
+    width: 70px;
+    height: 70px;
+  }
+}

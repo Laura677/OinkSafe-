@@ -1,0 +1,570 @@
+/* ========================================
+   PÁGINA PERFIL
+======================================== */
+
+.perfil-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  padding: 32px clamp(16px, 3vw, 40px);
+  box-sizing: border-box;
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.perfil-page *,
+.perfil-page *::before,
+.perfil-page *::after {
+  box-sizing: border-box;
+}
+
+/* ========================================
+   CONTAINERS
+======================================== */
+
+.perfil-titulo,
+.perfil-usuario,
+.perfil-resumo,
+.perfil-configuracoes,
+.perfil-mensagem {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================
+   TÍTULO
+======================================== */
+
+.perfil-titulo {
+  margin-bottom: 26px;
+}
+
+.perfil-titulo h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  margin: 0 0 8px;
+}
+
+.perfil-titulo p {
+  color: #a8a8a8;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ========================================
+   USUÁRIO
+======================================== */
+
+.perfil-usuario {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 24px;
+
+  background-color: #202020;
+  border: 1px solid #3a3a3a;
+  border-radius: 14px;
+
+  margin-bottom: 28px;
+}
+
+.perfil-avatar {
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid #a855f7;
+  border-radius: 50%;
+
+  color: #a855f7;
+  background-color: #292929;
+
+  font-size: 28px;
+  font-weight: bold;
+
+  overflow: hidden;
+}
+
+.perfil-avatar-imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.perfil-dados-usuario {
+  min-width: 0;
+}
+
+.perfil-usuario h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.perfil-usuario p {
+  margin: 0;
+  color: #a8a8a8;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* ========================================
+   MENSAGENS
+======================================== */
+
+.perfil-mensagem {
+  padding: 14px 18px;
+  margin-bottom: 24px;
+
+  background-color: #202020;
+  border: 1px solid #75ff00;
+  border-radius: 10px;
+
+  color: #d8ffc0;
+  font-size: 14px;
+}
+
+/* ========================================
+   RESUMO FINANCEIRO
+======================================== */
+
+.perfil-resumo {
+  margin-bottom: 28px;
+}
+
+.perfil-resumo h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.perfil-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.perfil-card {
+  background-color: #202020;
+  border: 1px solid #3a3a3a;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.perfil-card span {
+  display: block;
+  color: #a8a8a8;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.perfil-card strong {
+  display: block;
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.valor-verde {
+  color: #75ff00;
+}
+
+.valor-roxo {
+  color: #a855f7;
+}
+
+/* ========================================
+   CONFIGURAÇÕES
+======================================== */
+
+.perfil-configuracoes {
+  display: flex;
+  flex-direction: column;
+}
+
+.perfil-configuracoes h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.perfil-configuracoes button {
+  width: 100%;
+  text-align: left;
+
+  padding: 17px 18px;
+
+  background-color: #202020;
+  color: #ffffff;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+
+  margin-bottom: 10px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.perfil-configuracoes button:hover {
+  border-color: #a855f7;
+  background-color: #272727;
+}
+
+.perfil-configuracoes .btn-sair {
+  color: #ff5757;
+}
+
+.perfil-configuracoes .btn-sair:hover {
+  border-color: #ff5757;
+}
+
+/* ========================================
+   FUNDO DOS MODAIS
+======================================== */
+
+.perfil-modal-fundo {
+  position: fixed;
+  inset: 0;
+
+  background-color: rgba(0, 0, 0, 0.65);
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  z-index: 1000;
+}
+
+/* ========================================
+   MODAIS
+======================================== */
+
+.perfil-notificacoes,
+.perfil-editar-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: calc(100% - 32px);
+  max-width: 480px;
+  max-height: 85vh;
+
+  overflow-y: auto;
+
+  padding: 28px;
+
+  background-color: #202020;
+  color: #ffffff;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 14px;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+  z-index: 1001;
+}
+
+.perfil-notificacoes h2,
+.perfil-editar-modal h2 {
+  margin: 0 35px 18px 0;
+  font-size: 22px;
+}
+
+/* ========================================
+   BOTÃO FECHAR
+======================================== */
+
+.perfil-notificacoes .btn-fechar,
+.perfil-editar-modal .btn-fechar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: transparent;
+  border: none;
+
+  color: #a8a8a8;
+  font-size: 26px;
+
+  cursor: pointer;
+}
+
+.perfil-notificacoes .btn-fechar:hover,
+.perfil-editar-modal .btn-fechar:hover {
+  color: #ffffff;
+}
+
+/* ========================================
+   NOTIFICAÇÕES
+======================================== */
+
+.perfil-notificacoes p {
+  padding: 12px 14px;
+  margin: 0 0 10px;
+
+  background-color: #292929;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+
+  color: #e0e0e0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.perfil-notificacoes p:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   MODAL EDITAR PERFIL
+======================================== */
+
+.perfil-editar-descricao {
+  margin: -6px 0 24px;
+
+  color: #a8a8a8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.perfil-editar-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 24px;
+}
+
+.perfil-avatar-preview {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+
+  font-size: 36px;
+}
+
+.perfil-input-arquivo {
+  display: none;
+}
+
+.perfil-editar-foto .perfil-btn-foto {
+  padding: 10px 18px;
+
+  background-color: #292929;
+  color: #ffffff;
+
+  border: 1px solid #a855f7;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.perfil-editar-foto .perfil-btn-foto:hover {
+  background-color: #363036;
+}
+
+.perfil-editar-foto .perfil-btn-remover-foto {
+  background: transparent;
+  border: none;
+
+  color: #ff7777;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.perfil-editar-foto small {
+  color: #a8a8a8;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ========================================
+   CAMPOS DO FORMULÁRIO
+======================================== */
+
+.perfil-label {
+  display: block;
+  margin: 16px 0 8px;
+
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.perfil-input {
+  display: block;
+  width: 100%;
+
+  padding: 13px 14px;
+
+  background-color: #121212;
+  color: #ffffff;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.perfil-input:focus {
+  border-color: #a855f7;
+}
+
+.perfil-input-desabilitado {
+  background-color: #292929;
+  color: #888888;
+  cursor: not-allowed;
+}
+
+.perfil-ajuda {
+  display: block;
+  margin-top: 8px;
+
+  color: #a8a8a8;
+  font-size: 12px;
+}
+
+.perfil-erro {
+  padding: 12px;
+  margin-top: 16px;
+
+  background-color: rgba(255, 87, 87, 0.1);
+  color: #ff7777;
+
+  border: 1px solid #ff5757;
+  border-radius: 8px;
+
+  font-size: 13px;
+}
+
+/* ========================================
+   BOTÕES DO MODAL
+======================================== */
+
+.perfil-editar-acoes {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.perfil-editar-acoes button {
+  flex: 1;
+
+  padding: 13px 16px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.perfil-btn-cancelar {
+  background-color: #292929;
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
+}
+
+.perfil-btn-salvar {
+  background-color: #75ff00;
+  color: #111111;
+  border: 1px solid #75ff00;
+}
+
+.perfil-editar-acoes button:hover {
+  opacity: 0.85;
+}
+
+.perfil-editar-acoes button:disabled,
+.perfil-editar-foto button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 900px) {
+
+  .perfil-page {
+    padding: 24px 16px;
+  }
+
+  .perfil-cards {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .perfil-usuario {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .perfil-avatar {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    font-size: 24px;
+  }
+
+  .perfil-avatar-preview {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    font-size: 32px;
+  }
+
+  .perfil-usuario h2 {
+    font-size: 18px;
+  }
+
+  .perfil-usuario p {
+    font-size: 12px;
+  }
+
+  .perfil-notificacoes,
+  .perfil-editar-modal {
+    padding: 22px 18px;
+  }
+
+  .perfil-editar-acoes {
+    flex-direction: column;
+  }
+
+  .perfil-editar-acoes button {
+    width: 100%;
+  }
+
+}

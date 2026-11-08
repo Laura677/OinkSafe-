@@ -1,0 +1,55 @@
+.sobre-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px 20px;
+
+  background-color: #121212;
+  color: white;
+}
+
+.sobre-conteudo {
+  width: 100%;
+  max-width: 700px;
+
+  text-align: center;
+}
+
+.sobre-conteudo h1 {
+  font-size: clamp(28px, 4vw, 38px);
+
+  margin-bottom: 14px;
+}
+
+.sobre-conteudo > p {
+  color: #a8a8a8;
+
+  line-height: 1.6;
+
+  margin-bottom: 40px;
+}
+
+.em-construcao {
+  padding: 45px 25px;
+
+  background-color: #202020;
+
+  border: 1px dashed #75ff00;
+  border-radius: 14px;
+}
+
+.em-construcao h2 {
+  color: #75ff00;
+
+  font-size: 28px;
+
+  margin-bottom: 10px;
+}
+
+.em-construcao p {
+  color: #a8a8a8;
+}

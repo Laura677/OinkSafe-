@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Cofrinho - OINKSAFE</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style/cofrinho-style.css">
+</head>
+<body>
+
+    <div class="container-fluid vh-100 d-flex flex-column">
+        <div class="row flex-grow-1">
+            
+            <div class="col-md-3 sidebar p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-5">
+                    <a href="index.html" class="text-white text-decoration-none fs-4 me-3">←</a>
+                    <h3 class="text-white mb-0">Minhas Metas</h3>
+                </div>
+
+                <div class="sidebar-stats mb-4">
+                    <p class="mb-1 text-light">Seu Saldo</p>
+                    <h2 class="text-white fw-bold mb-4">R$5.000,00</h2>
+
+                    <p class="mb-1 text-light">Guardou este mês</p>
+                    <h4 class="text-white fw-bold mb-4">R$350,00</h4>
+
+                    <p class="mb-1 text-light">Rendimento este mês</p>
+                    <h4 class="text-white fw-bold mb-4">R$50,00</h4>
+
+                    <p class="mb-1 text-light">Metas Concluídas</p>
+                    <h4 class="text-white fw-bold mb-4">0</h4>
+                </div>
+            </div>
+
+            <div class="col-md-9 p-4 main-content">
+                
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="user-icon-large"></div>
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 me-4 fw-bold">Mês: <span class="text-muted">Março ▼</span></h5>
+                        <div class="bell-icon">🔔</div>
+                    </div>
+                </div>
+                    <div class="row g-4 mb-5" id="container-metas">   
+
+                    </div>
+
+    <div class="modal fade" id="modalNovaMeta" tabindex="-1" aria-labelledby="modalNovaMetaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                
+                <div class="modal-header" style="background-color: var(--verde-menta); border-bottom: none; padding: 20px 25px;">
+                    <h5 class="modal-title fw-bold" id="modalNovaMetaLabel" style="color: var(--azul-escuro);">Criar Nova Meta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body" style="padding: 25px; background-color: white;">
+                    <form>
+                        <div class="mb-3">
+                            <label for="nomeMeta" class="form-label fw-bold" style="color: var(--azul-escuro);">Nome da Meta</label>
+                            <input type="text" class="form-control" id="nomeMeta" placeholder="Ex: Trocar de celular" style="border-radius: 10px; border: 1px solid var(--card-cinza);">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="valorMeta" class="form-label fw-bold" style="color: var(-auzl-escuro);">Objetivo (R$)</label>
+                            <input type="number" class="form-control" id="valorMeta" placeholder="Ex: 3000,00" style="border-radius: 10px; border: 1px solid var(--card-cinza);">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: var(--azul-escuro);">Cor de destaque</label>
+                            <div class="d-flex gap-3">
+                                <input type="radio" class="btn-check" name="corMeta" id="corRoxa" autocomplete="off" checked>
+                                <label class="btn color-selector" for="corRoxa" style="background-color: var(--btn-roxo);"></label>
+
+                                <input type="radio" class="btn-check" name="corMeta" id="corVerde" autocomplete="off">
+                                <label class="btn color-selector" for="corVerde" style="background-color: var(--btn-verde);"></label>
+
+                                <input type="radio" class="btn-check" name="corMeta" id="corCinza" autocomplete="off">
+                                <label class="btn color-selector" for="corCinza" style="background-color: var(--card-cinza);"></label>
+
+                                <input type="radio" class="btn-check" name="corMeta" id="corAzul" autocomplete="off">
+                                <label class="btn color-selector" for="corAzul" style="background-color: var(--azul-escuro);"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-custom btn-purple w-100 m-0" data-bs-dismiss="modal">Salvar Meta</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="modalDetalhesMeta" tabindex="-1" aria-labelledby="modalDetalhesMetaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                <div class="modal-header" id="modalDetalhesHeader" style="border-bottom: none; padding: 20px 25px;">
+                    <h5 class="modal-title fw-bold" id="modalDetalhesNomeMeta">Nome da Meta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 30px 25px; background-color: white;">
+                    <div class="mb-4">
+                        <p class="mb-1 text-muted fw-bold" style="font-size: 0.9rem;">OBJETIVO TOTAL</p>
+                        <h3 id="modalDetalhesObjetivo" style="color: var(--azul-escuro);" class="fw-bold">R$ 0,00</h3>
+                    </div>
+                    <div class="mb-4">
+                        <p class="mb-1 text-muted fw-bold" style="font-size: 0.9rem;">VALOR GUARDADO</p>
+                        <h3 id="modalDetalhesGuardou" style="color: var(--azul-escuro);" class="fw-bold">R$ 0,00</h3>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold text-muted" style="font-size: 0.9rem;">PROGRESSO</span>
+                            <span class="fw-bold" id="modalDetalhesPorcentagem" style="color: var(--azul-escuro);">0%</span>
+                        </div>
+                        <div class="progress" style="height: 12px; border-radius: 10px; background-color: var(--card-gray);">
+                            <div id="modalDetalhesBarra" class="progress-bar" role="progressbar" style="width: 0%; background-color: var(--azul-escuro);"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-5">
+                        <button type="button" class="btn btn-outline-danger w-50" id="btnExcluirMeta" style="border-radius: 10px; font-weight: 700; padding: 10px;">
+                            Excluir Meta
+                        </button>
+                        <button type="button" class="btn btn-outline-success w-50" id="btnResgatarMeta" style="border-radius: 10px; font-weight: 700; padding: 10px;">
+                            Resgatar Meta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-labelledby="modalConfirmarExclusaoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                <div class="modal-header" style="background-color: #dc3545; border-bottom: none; padding: 20px 25px;">
+                    <h5 class="modal-title fw-bold text-white" id="modalConfirmarExclusaoLabel">Atenção! ⚠️</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center" style="padding: 30px 25px; background-color: white;">
+                    <h5 class="fw-bold mb-3" style="color: var(--azul-escuro);">Tem certeza que deseja excluir?</h5>
+                    <p class="text-muted mb-4">Essa ação não pode ser desfeita e todo o progresso desta meta será perdido.</p>
+                    <div class="d-flex gap-3 justify-content-center mt-2">
+                        <button type="button" class="btn btn-outline-secondary w-50" style="border-radius: 10px; font-weight: 600;" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger w-50" id="btnConfirmarExclusao" style="border-radius: 10px; font-weight: 600;">Sim, excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarResgate" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                
+                <div class="modal-header" style="background-color: #198754; border-bottom: none; padding: 20px 25px;">
+                    <h5 class="modal-title fw-bold text-white">Parabéns! 🎉</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body text-center" style="padding: 30px 25px; background-color: white;">
+                    <h5 class="fw-bold mb-3" style="color: var(--azul-escuro);">Deseja resgatar esta meta?</h5>
+                    <p class="text-muted mb-4">O valor da meta será retirado do seu valor guardado, e esta meta será dada como concluída e removida da sua lista.</p>
+                    
+                    <div class="d-flex gap-3 justify-content-center mt-2">
+                        <button type="button" class="btn btn-outline-secondary w-50" style="border-radius: 10px; font-weight: 600;" data-bs-dismiss="modal">Ainda não</button>
+                        <button type="button" class="btn btn-success w-50" id="btnConfirmarResgate" style="border-radius: 10px; font-weight: 600;">Sim, resgatar!</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script/auth.js"></script>
+    <script src="script/script.js"></script>
+    
+</body>
+</html>

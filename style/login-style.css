@@ -1,0 +1,74 @@
+:root {
+    --verde-menta: #B5EADB;
+    --azul-escuro: #3A4B7C;
+    --btn-roxo: #D5BDE8;
+    --font-family: 'Nunito', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--azul-escuro);
+}
+
+h1, h2, h3, h4, h5, h6, label {
+    color: var(--azul-escuro);
+}
+
+/* Lado da Ilustração */
+.bg-ilustracao {
+    background-color: var(--verde-menta);
+    /* Se quiser a cor mais clara da imagem exata, pode usar #D7E5AA também */
+}
+
+/* Inputs Customizados do Formulário */
+.input-custom {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 1px solid #E2E2E2;
+}
+
+.input-custom:focus {
+    border-color: var(--azul-escuro);
+    box-shadow: 0 0 0 0.25rem rgba(58, 75, 124, 0.15); /* Sombra azulada ao clicar */
+}
+
+/* Customização da Caixinha de Seleção (Checkbox) */
+.custom-checkbox:checked {
+    background-color: var(--azul-escuro);
+    border-color: var(--azul-escuro);
+}
+
+/* Estilos de Botão */
+.btn-custom {
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 700;
+    border: none;
+    color: var(--azul-escuro);
+    transition: all 0.3s ease;
+}
+
+.btn-purple {
+    background-color: var(--btn-roxo);
+}
+
+.btn-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    filter: brightness(0.95);
+}
+
+.btn-outline-custom {
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    color: var(--azul-escuro);
+    border: 1px solid #D0D0D0;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: #F8F9FA;
+    transform: translateY(-2px);
+}
