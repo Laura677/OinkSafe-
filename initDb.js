@@ -1,3 +1,4 @@
+
 const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
@@ -8,46 +9,96 @@ async function initDatabase() {
     let connection;
 
     try {
+        const dbName = (process.env.DB_NAME || 'oinksafe_db').trim();
+
+        if (!/^[a-zA-Z0-9_]+$/.test(dbName)) {
+            throw new Error('Nome do banco de dados inválido.');
+        }
+
         connection = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || 'admin',
+            host: (process.env.DB_HOST || 'localhost').trim(),
+            port: Number(process.env.DB_PORT || 3306),
+            user: (process.env.DB_USER || 'root').trim(),
+            password: process.env.DB_PASSWORD,
             multipleStatements: true
         });
 
-        const schemaPath = path.join(__dirname, 'database', 'schema.sql');
-        const insertsPath = path.join(__dirname, 'database', 'inserts.sql');
-        const viewsPath = path.join(__dirname, 'database', 'views.sql');
-        const functionsPath = path.join(__dirname, 'database', 'functions.sql');
-    const proceduresPath = path.join(__dirname, 'database', 'procedures.sql');        
-        const schema = fs.readFileSync(schemaPath, 'utf8');
-        const inserts = fs.readFileSync(insertsPath, 'utf8');
-        const views = fs.readFileSync(viewsPath, 'utf8');
-        const functions = fs.readFileSync(functionsPath, 'utf8');
-        const procedures = fs.readFileSync(proceduresPath, 'utf8');    
-        await connection.query(schema);
+        console.log('Conectado ao MySQL.');
 
+        await connection.query(
+            `CREATE DATABASE IF NOT EXISTS \`${dbName}\``
+        );
+
+        await connection.query(`USE \`${dbName}\``);
+
+        console.log('Banco selecionado:', dbName);
+
+        const pasta = path.join(__dirname, 'database');
+
+        function lerSQL(arquivo) {
+            return fs.readFileSync(
+                path.join(pasta, arquivo),
+                'utf8'
+            );
+        }
+
+        // Substitui referências ao banco local
+        // pelo banco configurado no ambiente.
+        function prepararSQL(sql) {
+            return sql
+                .replace(
+                    /`?oinksafe_db`?/gi,
+                    `\`${dbName}\``
+                )
+                .replace(
+                    /CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?railway`?\s*;/gi,
+                    ''
+                );
+        }
+
+        async function executarSQL(arquivo) {
+            const sql = prepararSQL(lerSQL(arquivo));
+
+            if (sql.trim()) {
+                await connection.query(sql);
+            }
+        }
+
+        // Cria as tabelas
+        await executarSQL('schema.sql');
+        console.log('Schema executado com sucesso.');
+
+        // Verifica dados iniciais
         const [usuarios] = await connection.query(
-            'SELECT COUNT(*) AS total FROM oinksafe_db.usuarios'
+            'SELECT COUNT(*) AS total FROM usuarios'
         );
 
         if (usuarios[0].total === 0) {
-            await connection.query(inserts);
+            await executarSQL('inserts.sql');
             console.log('Dados iniciais inseridos com sucesso.');
         } else {
-            console.log('Dados iniciais já existem. Inserts ignorados.');
+            console.log('Dados iniciais já existem.');
         }
 
-        await connection.query(views);
+        await executarSQL('views.sql');
         console.log('Views criadas com sucesso.');
-        await connection.query(functions);
-        console.log('Functions criadas com sucesso.');    
-        await connection.query(procedures);
+
+        await executarSQL('functions.sql');
+        console.log('Functions criadas com sucesso.');
+
+        await executarSQL('procedures.sql');
         console.log('Procedures criadas com sucesso.');
+
         console.log('Banco de dados inicializado com sucesso.');
 
     } catch (error) {
-        console.error('Erro ao inicializar o banco:', error.message);
+        console.error(
+            'Erro ao inicializar o banco:',
+            error.message
+        );
+
+        process.exitCode = 1;
+
     } finally {
         if (connection) {
             await connection.end();
