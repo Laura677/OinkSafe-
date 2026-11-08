@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from 'react'
 
 import {
@@ -10,6 +11,7 @@ import {
 import { Doughnut } from 'react-chartjs-2'
 
 import Header from '../components/Header'
+import API_URL from '../services/api'
 
 import porquinho from '../imgs-oinksafe/porquinho.png'
 import iconeGanho from '../imgs-oinksafe/icone-ganho.png'
@@ -17,7 +19,10 @@ import iconeAddGanho from '../imgs-oinksafe/icone-addganho.png'
 
 import './Ganhos.css'
 
-// Configuração do gráfico.
+// =========================================================
+// CONFIGURAÇÃO DO CHART.JS
+// =========================================================
+
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -25,26 +30,47 @@ ChartJS.register(
 )
 
 function Ganhos() {
-  // Categorias disponíveis para cadastrar receitas.
+
+  // =========================================================
+  // CATEGORIAS
+  // =========================================================
+
   const [categorias, setCategorias] = useState([])
 
-  // Campos do formulário de cadastro.
+  // =========================================================
+  // FORMULÁRIO
+  // =========================================================
+
   const [idCategoria, setIdCategoria] = useState('')
   const [valor, setValor] = useState('')
   const [descricao, setDescricao] = useState('')
   const [dataTransacao, setDataTransacao] = useState('')
 
-  // Receitas cadastradas pelo usuário.
+  // =========================================================
+  // TRANSAÇÕES
+  // =========================================================
+
   const [transacoes, setTransacoes] = useState([])
 
-  // Filtros da página.
+  // =========================================================
+  // FILTROS
+  // =========================================================
+
   const [periodo, setPeriodo] = useState('todos')
   const [categoriaFiltro, setCategoriaFiltro] = useState('todas')
 
-  // Data atual para impedir o cadastro de ganhos futuros.
-  const dataHoje = new Date().toISOString().split('T')[0]
+  // =========================================================
+  // DATA ATUAL
+  // =========================================================
 
-  // Formata valores no padrão de moeda brasileira.
+  // Usa a data local para evitar problemas de fuso horário.
+
+  const dataHoje = new Date().toLocaleDateString('en-CA')
+
+  // =========================================================
+  // FORMATAR MOEDA
+  // =========================================================
+
   function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString('pt-BR', {
       style: 'currency',
@@ -52,11 +78,16 @@ function Ganhos() {
     })
   }
 
-  // Carrega as transações e mantém somente as receitas.
+  // =========================================================
+  // CARREGAR TRANSAÇÕES
+  // =========================================================
+
   async function carregarTransacoes(idUsuario) {
+
     try {
+
       const resposta = await fetch(
-        `http://localhost:3000/api/transacoes/${idUsuario}`
+        `${API_URL}/api/transacoes/${idUsuario}`
       )
 
       if (!resposta.ok) {
@@ -65,55 +96,85 @@ function Ganhos() {
 
       const dados = await resposta.json()
 
+      // A API devolve receitas e despesas.
+      // Nesta página queremos somente receitas.
+
       const apenasReceitas = dados.filter(
         transacao => transacao.tipo === 'receita'
       )
 
       setTransacoes(apenasReceitas)
+
     } catch (error) {
+
       console.error('Erro ao buscar ganhos:', error)
+
       alert('Não foi possível carregar seus ganhos.')
     }
   }
 
-  // Carrega as categorias e as receitas ao abrir a página.
+  // =========================================================
+  // CARREGAMENTO DA PÁGINA
+  // =========================================================
+
   useEffect(() => {
+
     const sessao = JSON.parse(
       localStorage.getItem('sessao_oinksafe')
     )
 
-    // Busca somente as categorias do tipo receita.
-    fetch('http://localhost:3000/api/categorias')
+    // =======================================================
+    // CARREGA CATEGORIAS
+    // =======================================================
+
+    fetch(`${API_URL}/api/categorias`)
+
       .then(resposta => {
+
         if (!resposta.ok) {
           throw new Error('Erro ao carregar as categorias.')
         }
 
         return resposta.json()
       })
+
       .then(dados => {
+
         const categoriasReceita = dados.filter(
           categoria => categoria.tipo === 'receita'
         )
 
         setCategorias(categoriasReceita)
       })
+
       .catch(error => {
         console.error('Erro ao buscar categorias:', error)
       })
 
-    // Busca as transações do usuário conectado.
+    // =======================================================
+    // CARREGA GANHOS DO USUÁRIO LOGADO
+    // =======================================================
+
     if (sessao) {
       carregarTransacoes(sessao.id)
     }
+
   }, [])
 
-  // Filtra os ganhos pelo período e pela categoria selecionados.
+  // =========================================================
+  // FILTRAR TRANSAÇÕES
+  // =========================================================
+
   const transacoesFiltradas = useMemo(() => {
+
     const hoje = new Date()
 
     return transacoes.filter(transacao => {
-      // Filtro por categoria.
+
+      // =================================================
+      // FILTRO POR CATEGORIA
+      // =================================================
+
       if (
         categoriaFiltro !== 'todas' &&
         transacao.categoria !== categoriaFiltro
@@ -121,13 +182,22 @@ function Ganhos() {
         return false
       }
 
-      // Exibe todos os ganhos, independentemente da data.
+      // =================================================
+      // TODOS
+      // =================================================
+
       if (periodo === 'todos') {
         return true
       }
 
-      // Converte a data para evitar problemas com o fuso horário.
-      const data = String(transacao.data_transacao).slice(0, 10)
+      // =================================================
+      // CONVERTER DATA
+      // =================================================
+
+      const data = String(
+        transacao.data_transacao
+      ).slice(0, 10)
+
       const [ano, mes, dia] = data.split('-').map(Number)
 
       const dataObjeto = new Date(ano, mes - 1, dia)
@@ -136,7 +206,10 @@ function Ganhos() {
         return false
       }
 
-      // Exibe somente os ganhos do mês atual.
+      // =================================================
+      // ESTE MÊS
+      // =================================================
+
       if (periodo === 'mes') {
         return (
           dataObjeto.getMonth() === hoje.getMonth() &&
@@ -144,8 +217,12 @@ function Ganhos() {
         )
       }
 
-      // Exibe os ganhos dos últimos 30 dias.
+      // =================================================
+      // ÚLTIMOS 30 DIAS
+      // =================================================
+
       if (periodo === '30dias') {
+
         const limite = new Date()
 
         limite.setDate(limite.getDate() - 30)
@@ -159,27 +236,39 @@ function Ganhos() {
 
       return true
     })
+
   }, [transacoes, periodo, categoriaFiltro])
 
-  // Soma o valor dos ganhos exibidos após aplicar os filtros.
+  // =========================================================
+  // TOTAL DE GANHOS
+  // =========================================================
+
   const totalGanhos = useMemo(() => {
+
     return transacoesFiltradas.reduce(
       (total, transacao) => {
         return total + Number(transacao.valor || 0)
       },
       0
     )
+
   }, [transacoesFiltradas])
 
-  // Calcula a média diária nos dias em que houve ganhos.
+  // =========================================================
+  // MÉDIA DIÁRIA
+  // =========================================================
+
   const mediaDiaria = useMemo(() => {
+
     if (transacoesFiltradas.length === 0) {
       return 0
     }
 
     const diasComGanho = new Set(
       transacoesFiltradas.map(transacao => {
-        return String(transacao.data_transacao).slice(0, 10)
+        return String(
+          transacao.data_transacao
+        ).slice(0, 10)
       })
     )
 
@@ -188,13 +277,19 @@ function Ganhos() {
     }
 
     return totalGanhos / diasComGanho.size
+
   }, [transacoesFiltradas, totalGanhos])
 
-  // Agrupa os ganhos por categoria para montar o gráfico.
+  // =========================================================
+  // AGRUPAR GANHOS POR CATEGORIA
+  // =========================================================
+
   const ganhosPorCategoria = useMemo(() => {
+
     const agrupados = {}
 
     transacoesFiltradas.forEach(transacao => {
+
       const categoria = transacao.categoria || 'Sem categoria'
 
       if (!agrupados[categoria]) {
@@ -210,15 +305,24 @@ function Ganhos() {
         total
       })
     )
+
   }, [transacoesFiltradas])
 
-  // Informações exibidas no gráfico.
+  // =========================================================
+  // GRÁFICO
+  // =========================================================
+
   const dadosGrafico = {
-    labels: ganhosPorCategoria.map(item => item.categoria),
+
+    labels: ganhosPorCategoria.map(
+      item => item.categoria
+    ),
 
     datasets: [
       {
-        data: ganhosPorCategoria.map(item => item.total),
+        data: ganhosPorCategoria.map(
+          item => item.total
+        ),
 
         backgroundColor: [
           '#69ff00',
@@ -234,14 +338,16 @@ function Ganhos() {
     ]
   }
 
-  // Aparência do gráfico.
   const opcoesGrafico = {
+
     responsive: true,
     maintainAspectRatio: false,
     cutout: '68%',
 
     plugins: {
+
       legend: {
+
         position: 'right',
 
         labels: {
@@ -252,7 +358,9 @@ function Ganhos() {
       },
 
       tooltip: {
+
         callbacks: {
+
           label: contexto => {
             return `${contexto.label}: ${formatarMoeda(contexto.raw)}`
           }
@@ -261,8 +369,12 @@ function Ganhos() {
     }
   }
 
-  // Cadastra um novo ganho usando a API existente.
+  // =========================================================
+  // CADASTRAR GANHO
+  // =========================================================
+
   async function cadastrarGanho(event) {
+
     event.preventDefault()
 
     const sessao = JSON.parse(
@@ -274,7 +386,10 @@ function Ganhos() {
       return
     }
 
-    // Verifica se todos os campos foram preenchidos.
+    // =======================================================
+    // CAMPOS OBRIGATÓRIOS
+    // =======================================================
+
     if (
       !idCategoria ||
       !valor ||
@@ -285,21 +400,32 @@ function Ganhos() {
       return
     }
 
-    // Impede valores iguais ou inferiores a zero.
+    // =======================================================
+    // VALOR
+    // =======================================================
+
     if (Number(valor) <= 0) {
       alert('Informe um valor maior que zero.')
       return
     }
 
-    // Impede cadastrar uma receita com data futura.
+    // =======================================================
+    // DATA FUTURA
+    // =======================================================
+
     if (dataTransacao > dataHoje) {
       alert('A data do ganho não pode ser futura.')
       return
     }
 
+    // =======================================================
+    // ENVIA PARA API
+    // =======================================================
+
     try {
+
       const resposta = await fetch(
-        'http://localhost:3000/api/transacoes',
+        `${API_URL}/api/transacoes`,
         {
           method: 'POST',
 
@@ -320,38 +446,61 @@ function Ganhos() {
       const dados = await resposta.json()
 
       if (resposta.ok) {
+
         alert('Ganho cadastrado com sucesso!')
 
-        // Limpa o formulário após o cadastro.
+        // Limpa o formulário.
+
         setIdCategoria('')
         setValor('')
         setDescricao('')
         setDataTransacao('')
 
-        // Atualiza a lista após salvar a receita.
+        // Atualiza os ganhos.
+
         await carregarTransacoes(sessao.id)
+
       } else {
+
         alert(
-          dados.message || 'Erro ao cadastrar ganho.'
+          dados.message ||
+          'Erro ao cadastrar ganho.'
         )
       }
+
     } catch (error) {
+
       console.error('Erro ao cadastrar ganho:', error)
+
       alert('Erro ao conectar com o servidor.')
     }
   }
 
+  // =========================================================
+  // INTERFACE
+  // =========================================================
+
   return (
     <div className="ganhos-container">
+
       <Header />
 
       <main className="ganhos-page">
 
-        {/* Cabeçalho da página */}
+        {/* ================================================= */}
+        {/* CABEÇALHO */}
+        {/* ================================================= */}
+
         <section className="ganhos-cabecalho">
+
           <div className="ganhos-cabecalho-texto">
+
             <h1>Ganhos</h1>
-            <p>Acompanhe e gerencie suas entradas</p>
+
+            <p>
+              Acompanhe e gerencie suas entradas
+            </p>
+
           </div>
 
           <img
@@ -359,82 +508,137 @@ function Ganhos() {
             alt="Porquinho do OinkSafe"
             className="ganhos-porquinho"
           />
+
         </section>
 
-        {/* Filtros por período e categoria */}
+        {/* ================================================= */}
+        {/* FILTROS */}
+        {/* ================================================= */}
+
         <section className="ganhos-filtros">
+
           <select
             value={periodo}
-            onChange={event => setPeriodo(event.target.value)}
+            onChange={event =>
+              setPeriodo(event.target.value)
+            }
           >
-            <option value="todos">Todos os ganhos</option>
-            <option value="mes">Este mês</option>
-            <option value="30dias">Últimos 30 dias</option>
+
+            <option value="todos">
+              Todos os ganhos
+            </option>
+
+            <option value="mes">
+              Este mês
+            </option>
+
+            <option value="30dias">
+              Últimos 30 dias
+            </option>
+
           </select>
 
           <select
             value={categoriaFiltro}
-            onChange={event => setCategoriaFiltro(event.target.value)}
+            onChange={event =>
+              setCategoriaFiltro(event.target.value)
+            }
           >
-            <option value="todas">Todas as categorias</option>
+
+            <option value="todas">
+              Todas as categorias
+            </option>
 
             {categorias.map(categoria => (
+
               <option
                 key={categoria.id_categoria}
                 value={categoria.nome}
               >
                 {categoria.nome}
               </option>
+
             ))}
+
           </select>
+
         </section>
 
-        {/* Resumo dos ganhos */}
+        {/* ================================================= */}
+        {/* RESUMO */}
+        {/* ================================================= */}
+
         <section className="ganhos-resumo">
+
           <div className="ganhos-card-resumo">
+
             <span>Total de ganhos</span>
 
             <strong className="ganho-destaque">
               {formatarMoeda(totalGanhos)}
             </strong>
 
-            <small>No período selecionado</small>
+            <small>
+              No período selecionado
+            </small>
+
           </div>
 
           <div className="ganhos-card-resumo">
+
             <span>Média diária</span>
 
             <strong className="ganho-destaque">
               {formatarMoeda(mediaDiaria)}
             </strong>
 
-            <small>Média nos dias com ganhos</small>
+            <small>
+              Média nos dias com ganhos
+            </small>
+
           </div>
+
         </section>
 
-        {/* Gráfico de ganhos por categoria */}
+        {/* ================================================= */}
+        {/* GRÁFICO */}
+        {/* ================================================= */}
+
         <section className="ganhos-bloco">
+
           <div className="ganhos-bloco-topo">
             <h2>Ganhos por categoria</h2>
           </div>
 
           <div className="ganhos-grafico">
+
             {ganhosPorCategoria.length === 0 ? (
+
               <div className="ganhos-vazio">
                 <p>Nenhum ganho encontrado.</p>
               </div>
+
             ) : (
+
               <Doughnut
                 data={dadosGrafico}
                 options={opcoesGrafico}
               />
+
             )}
+
           </div>
+
         </section>
 
-        {/* Formulário de cadastro */}
+        {/* ================================================= */}
+        {/* NOVO GANHO */}
+        {/* ================================================= */}
+
         <section className="ganhos-bloco">
+
           <div className="ganhos-bloco-topo">
+
             <div>
               <h2>Novo ganho</h2>
               <p>Registre uma nova receita</p>
@@ -445,35 +649,50 @@ function Ganhos() {
               alt=""
               className="icone-novo-ganho"
             />
+
           </div>
 
           <form
             onSubmit={cadastrarGanho}
             className="form-ganhos"
           >
+
+            {/* CATEGORIA */}
+
             <div className="campo-ganho">
+
               <label>Categoria</label>
 
               <select
                 value={idCategoria}
-                onChange={event => setIdCategoria(event.target.value)}
+                onChange={event =>
+                  setIdCategoria(event.target.value)
+                }
               >
+
                 <option value="">
                   Selecione uma categoria
                 </option>
 
                 {categorias.map(categoria => (
+
                   <option
                     key={categoria.id_categoria}
                     value={categoria.id_categoria}
                   >
                     {categoria.nome}
                   </option>
+
                 ))}
+
               </select>
+
             </div>
 
+            {/* VALOR */}
+
             <div className="campo-ganho">
+
               <label>Valor</label>
 
               <input
@@ -481,37 +700,53 @@ function Ganhos() {
                 step="0.01"
                 min="0.01"
                 value={valor}
-                onChange={event => setValor(event.target.value)}
+                onChange={event =>
+                  setValor(event.target.value)
+                }
                 placeholder="R$ 0,00"
               />
+
             </div>
 
+            {/* DESCRIÇÃO */}
+
             <div className="campo-ganho">
+
               <label>Descrição</label>
 
               <input
                 type="text"
                 value={descricao}
-                onChange={event => setDescricao(event.target.value)}
+                onChange={event =>
+                  setDescricao(event.target.value)
+                }
                 placeholder="Ex: Salário"
               />
+
             </div>
 
+            {/* DATA */}
+
             <div className="campo-ganho">
+
               <label>Data</label>
 
               <input
                 type="date"
                 value={dataTransacao}
                 max={dataHoje}
-                onChange={event => setDataTransacao(event.target.value)}
+                onChange={event =>
+                  setDataTransacao(event.target.value)
+                }
               />
+
             </div>
 
             <button
               type="submit"
               className="btn-adicionar-ganho"
             >
+
               <img
                 src={iconeAddGanho}
                 alt=""
@@ -519,55 +754,83 @@ function Ganhos() {
               />
 
               Adicionar ganho
+
             </button>
+
           </form>
+
         </section>
 
-        {/* Lista de ganhos cadastrados */}
+        {/* ================================================= */}
+        {/* LISTA DE GANHOS */}
+        {/* ================================================= */}
+
         <section className="ganhos-bloco lista-ganhos">
+
           <div className="ganhos-bloco-topo">
             <h2>Lista de ganhos</h2>
           </div>
 
           {transacoesFiltradas.length === 0 ? (
+
             <div className="ganhos-vazio">
               <p>Nenhum ganho encontrado.</p>
             </div>
+
           ) : (
+
             <div className="ganhos-lista">
+
               {transacoesFiltradas.map(transacao => (
+
                 <div
                   className="ganho-item"
                   key={transacao.id_transacao}
                 >
+
                   <div className="ganho-item-esquerda">
+
                     <div className="ganho-icone">
+
                       <img
                         src={iconeGanho}
                         alt=""
                       />
+
                     </div>
 
                     <div className="ganho-informacoes">
-                      <strong>{transacao.descricao}</strong>
 
-                      <p>{transacao.categoria}</p>
+                      <strong>
+                        {transacao.descricao}
+                      </strong>
+
+                      <p>
+                        {transacao.categoria}
+                      </p>
 
                       <small>
                         {new Date(
                           `${String(transacao.data_transacao).slice(0, 10)}T00:00:00`
                         ).toLocaleDateString('pt-BR')}
                       </small>
+
                     </div>
+
                   </div>
 
                   <span className="ganho-valor">
                     + {formatarMoeda(transacao.valor)}
                   </span>
+
                 </div>
+
               ))}
+
             </div>
+
           )}
+
         </section>
 
       </main>

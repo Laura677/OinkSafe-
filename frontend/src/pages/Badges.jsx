@@ -1,6 +1,10 @@
+
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+
 import Header from '../components/Header'
+import API_URL from '../services/api'
+
 import './Badges.css'
 
 // ========================================
@@ -71,7 +75,6 @@ function ImagemBadge({ src, nome }) {
   }, [src])
 
   if (falhou) {
-
     return (
       <span
         className="badge-icone-alternativo"
@@ -80,7 +83,6 @@ function ImagemBadge({ src, nome }) {
         🏆
       </span>
     )
-
   }
 
   return (
@@ -91,7 +93,6 @@ function ImagemBadge({ src, nome }) {
       onError={() => setFalhou(true)}
     />
   )
-
 }
 
 // ========================================
@@ -111,7 +112,6 @@ function formatarData(valor) {
   }
 
   return data.toLocaleDateString('pt-BR')
-
 }
 
 // ========================================
@@ -121,11 +121,8 @@ function formatarData(valor) {
 function Badges() {
 
   const [conquistas, setConquistas] = useState([])
-
   const [carregando, setCarregando] = useState(true)
-
   const [erro, setErro] = useState('')
-
   const [tentativa, setTentativa] = useState(0)
 
   // ========================================
@@ -148,45 +145,38 @@ function Badges() {
         )
 
         if (!sessao?.id) {
-
           throw new Error(
             'Sua sessão não foi encontrada. Entre novamente.'
           )
-
         }
 
+        // Utiliza a API configurada para o ambiente.
+        // Local: localhost
+        // Produção: backend publicado no Railway
+
         const resposta = await fetch(
-
-          `http://localhost:3000/api/badges/${encodeURIComponent(sessao.id)}`,
-
+          `${API_URL}/api/badges/${encodeURIComponent(sessao.id)}`,
           {
             signal: controller.signal
           }
-
         )
 
         if (!resposta.ok) {
-
           throw new Error(
             'Não foi possível carregar suas conquistas. Tente novamente.'
           )
-
         }
 
         const dados = await resposta.json()
 
         if (!Array.isArray(dados)) {
-
           throw new Error(
             'A API retornou uma resposta inesperada.'
           )
-
         }
 
         if (!controller.signal.aborted) {
-
           setConquistas(dados)
-
         }
 
       } catch (error) {
@@ -196,25 +186,17 @@ function Badges() {
         }
 
         setErro(
-
           error instanceof TypeError
-
-            ? 'Não foi possível conectar à API. Confira se o servidor Node está iniciado.'
-
+            ? 'Não foi possível conectar à API. Verifique a conexão com o servidor.'
             : error.message
-
         )
 
       } finally {
 
         if (!controller.signal.aborted) {
-
           setCarregando(false)
-
         }
-
       }
-
     }
 
     carregarConquistas()
@@ -228,11 +210,9 @@ function Badges() {
   // ========================================
 
   const totalConquistadas = catalogo.filter(badge =>
-
     conquistas.some(
       conquista => conquista.badgeId === badge.id
     )
-
   ).length
 
   const porcentagem = Math.round(
@@ -244,7 +224,6 @@ function Badges() {
   // ========================================
 
   return (
-
     <div className="pagina-badges">
 
       <Header />
@@ -384,38 +363,27 @@ function Badges() {
                 return (
 
                   <article
-
                     key={badge.id}
-
                     className={`badge-card ${
                       desbloqueada
-
                         ? 'badge-card-conquistada'
-
                         : 'badge-card-bloqueada'
                     }`}
-
                   >
 
                     {/* STATUS */}
 
                     <span
-
                       className={`badge-status ${
                         desbloqueada
-
                           ? 'badge-status-conquistada'
-
                           : 'badge-status-bloqueada'
                       }`}
-
                     >
-
                       {desbloqueada
                         ? '✓ Conquistada'
                         : '🔒 Bloqueada'
                       }
-
                     </span>
 
                     {/* IMAGEM */}
@@ -431,9 +399,7 @@ function Badges() {
 
                     {/* NOME */}
 
-                    <h2>
-                      {badge.nome}
-                    </h2>
+                    <h2>{badge.nome}</h2>
 
                     {/* DESCRIÇÃO */}
 
@@ -446,13 +412,10 @@ function Badges() {
                     {desbloqueada ? (
 
                       <p className="badge-data">
-
                         Conquistada em{' '}
-
                         {formatarData(
                           conquista.dataConquista
                         )}
-
                       </p>
 
                     ) : (
@@ -467,9 +430,7 @@ function Badges() {
                     )}
 
                   </article>
-
                 )
-
               })}
 
             </section>
@@ -481,9 +442,7 @@ function Badges() {
       </main>
 
     </div>
-
   )
-
 }
 
 export default Badges

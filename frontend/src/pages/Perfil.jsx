@@ -1,12 +1,11 @@
+
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import API_URL from '../services/api'
 import './Perfil.css'
 
-const API_URL = 'http://localhost:3000'
-
 function Perfil() {
-
   const navigate = useNavigate()
   const inputFotoRef = useRef(null)
 
@@ -35,11 +34,9 @@ function Perfil() {
   // ========================================
 
   useEffect(() => {
-
     let ativo = true
 
     async function carregarPerfil() {
-
       const sessaoSalva = localStorage.getItem('sessao_oinksafe')
 
       if (!sessaoSalva) {
@@ -73,7 +70,6 @@ function Perfil() {
       }
 
       try {
-
         const [respostaResumo, respostaMetas] = await Promise.all([
           fetch(`${API_URL}/api/dashboard/${sessao.id}`),
           fetch(`${API_URL}/api/metas/${sessao.id}`)
@@ -132,7 +128,6 @@ function Perfil() {
         // Também evita comparar ganhos com gastos zerados.
 
         if (despesas > 0 && saldo > 0) {
-
           if (receitas >= despesas * 3) {
             avisos.push(
               'TRÊS VEZES MAIS? Você está ganhando três vezes mais que gastando? Meus parabéns!!! Um porquinho cheio é um porquinho feliz.'
@@ -142,7 +137,6 @@ function Perfil() {
               'Wow você está ganhando mais que o dobro do que gasta!'
             )
           }
-
         }
 
         if (saldo >= 8000) {
@@ -162,9 +156,7 @@ function Perfil() {
         // ========================================
 
         if (Array.isArray(metas)) {
-
           metas.forEach(meta => {
-
             const valorAtual = Number(meta.valor_atual) || 0
             const valorAlvo = Number(meta.valor_alvo) || 0
 
@@ -173,33 +165,24 @@ function Perfil() {
             const progresso = (valorAtual / valorAlvo) * 100
 
             if (progresso >= 100) {
-
               avisos.push(
                 `Parabéns! Você concluiu a meta "${meta.titulo}"!`
               )
-
             } else if (progresso >= 80) {
-
               avisos.push(
                 `Você está quase lá! A meta "${meta.titulo}" já alcançou ${Math.floor(progresso)}% do objetivo.`
               )
-
             } else if (progresso >= 50) {
-
               avisos.push(
                 `Você chegou aos 50% da meta "${meta.titulo}"!`
               )
-
             }
-
           })
-
         }
 
         setNotificacoes(avisos)
 
       } catch (erro) {
-
         console.error('Erro ao carregar perfil:', erro)
 
         if (ativo) {
@@ -207,9 +190,7 @@ function Perfil() {
             'Não foi possível carregar todas as informações financeiras.'
           )
         }
-
       }
-
     }
 
     carregarPerfil()
@@ -217,7 +198,6 @@ function Perfil() {
     return () => {
       ativo = false
     }
-
   }, [navigate])
 
   // ========================================
@@ -225,12 +205,10 @@ function Perfil() {
   // ========================================
 
   function formatarMoeda(valor) {
-
     return Number(valor || 0).toLocaleString('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     })
-
   }
 
   // ========================================
@@ -238,12 +216,10 @@ function Perfil() {
   // ========================================
 
   function abrirEditarPerfil() {
-
     setNomeEditado(usuario?.nome || '')
     setFotoEditada(fotoPerfil)
     setErroEdicao('')
     setMostrarEditarPerfil(true)
-
   }
 
   // ========================================
@@ -251,7 +227,6 @@ function Perfil() {
   // ========================================
 
   function selecionarFoto(evento) {
-
     const arquivo = evento.target.files?.[0]
 
     if (!arquivo) return
@@ -286,7 +261,6 @@ function Perfil() {
     }
 
     leitor.readAsDataURL(arquivo)
-
   }
 
   // ========================================
@@ -294,7 +268,6 @@ function Perfil() {
   // ========================================
 
   async function salvarPerfil(evento) {
-
     evento.preventDefault()
 
     if (!usuario?.id || salvando) return
@@ -313,7 +286,6 @@ function Perfil() {
     setMensagem('')
 
     try {
-
       const resposta = await fetch(
         `${API_URL}/api/usuarios/${usuario.id}/perfil`,
         {
@@ -352,7 +324,6 @@ function Perfil() {
       const chaveFoto = `oinksafe_foto_perfil_${usuario.id}`
 
       try {
-
         if (fotoEditada) {
           localStorage.setItem(chaveFoto, fotoEditada)
         } else {
@@ -364,28 +335,22 @@ function Perfil() {
         setMensagem('Perfil atualizado com sucesso!')
 
       } catch (erroFoto) {
-
         console.error('Erro ao salvar foto:', erroFoto)
 
         setMensagem(
           'Nome atualizado! Não foi possível salvar a foto neste navegador.'
         )
-
       }
 
       setMostrarEditarPerfil(false)
 
     } catch (erro) {
-
       console.error('Erro ao salvar perfil:', erro)
       setErroEdicao(erro.message)
 
     } finally {
-
       setSalvando(false)
-
     }
-
   }
 
   // ========================================
@@ -393,10 +358,8 @@ function Perfil() {
   // ========================================
 
   function fazerLogout() {
-
     localStorage.removeItem('sessao_oinksafe')
     navigate('/login')
-
   }
 
   // ========================================
@@ -404,9 +367,7 @@ function Perfil() {
   // ========================================
 
   return (
-
     <div>
-
       <Header />
 
       <main className="perfil-page">
@@ -414,101 +375,71 @@ function Perfil() {
         {/* TÍTULO */}
 
         <section className="perfil-titulo">
-
           <h1>Meu perfil</h1>
-
           <p>Gerencie suas informações e preferências</p>
-
         </section>
 
         {/* USUÁRIO */}
 
         <section className="perfil-usuario">
-
           <div className="perfil-avatar">
-
             {fotoPerfil ? (
-
               <img
                 src={fotoPerfil}
                 alt="Foto de perfil"
                 className="perfil-avatar-imagem"
               />
-
             ) : (
-
               usuario?.nome?.charAt(0).toUpperCase() || 'U'
-
             )}
-
           </div>
 
           <div className="perfil-dados-usuario">
-
             <h2>{usuario?.nome || 'Usuário'}</h2>
-
             <p>{usuario?.email || 'E-mail não disponível'}</p>
-
           </div>
-
         </section>
 
         {/* MENSAGEM */}
 
         {mensagem && (
-
           <p className="perfil-mensagem" role="status">
             {mensagem}
           </p>
-
         )}
 
         {/* RESUMO */}
 
         <section className="perfil-resumo">
-
           <h2>Resumo da conta</h2>
 
           <div className="perfil-cards">
-
             <div className="perfil-card">
-
               <span>Saldo atual</span>
-
               <strong className="valor-verde">
                 {formatarMoeda(resumo.saldo)}
               </strong>
-
             </div>
 
             <div className="perfil-card">
-
               <span>Total de receitas</span>
-
               <strong className="valor-verde">
                 {formatarMoeda(resumo.total_receitas)}
               </strong>
-
             </div>
 
             <div className="perfil-card">
-
               <span>Total de despesas</span>
-
               <strong className="valor-roxo">
                 {formatarMoeda(resumo.total_despesas)}
               </strong>
-
             </div>
-
           </div>
-
         </section>
 
         {/* CONFIGURAÇÕES */}
 
         <section className="perfil-configuracoes">
-
           <h2>Configurações</h2>
 
           <button
@@ -536,7 +467,6 @@ function Perfil() {
             type="button"
             onClick={() => navigate('/badges')}
           >
-            
             Minhas conquistas
           </button>
 
@@ -547,7 +477,6 @@ function Perfil() {
           >
             Sair da conta
           </button>
-
         </section>
 
         {/* ========================================
@@ -555,9 +484,7 @@ function Perfil() {
         ======================================== */}
 
         {mostrarNotificacoes && (
-
           <>
-
             <div
               className="perfil-modal-fundo"
               onClick={() => setMostrarNotificacoes(false)}
@@ -569,7 +496,6 @@ function Perfil() {
               aria-modal="true"
               aria-label="Notificações"
             >
-
               <button
                 type="button"
                 className="btn-fechar"
@@ -582,27 +508,18 @@ function Perfil() {
               <h2>Notificações</h2>
 
               {notificacoes.length > 0 ? (
-
                 notificacoes.map((aviso, index) => (
-
                   <p key={index}>
                     {aviso}
                   </p>
-
                 ))
-
               ) : (
-
                 <p>
                   Você não tem notificações no momento.
                 </p>
-
               )}
-
             </section>
-
           </>
-
         )}
 
         {/* ========================================
@@ -610,9 +527,7 @@ function Perfil() {
         ======================================== */}
 
         {mostrarEditarPerfil && (
-
           <>
-
             <div
               className="perfil-modal-fundo"
               onClick={() => {
@@ -628,7 +543,6 @@ function Perfil() {
               aria-modal="true"
               aria-labelledby="titulo-editar-perfil"
             >
-
               <button
                 type="button"
                 className="btn-fechar"
@@ -648,25 +562,17 @@ function Perfil() {
               </p>
 
               <form onSubmit={salvarPerfil}>
-
                 <div className="perfil-editar-foto">
-
                   <div className="perfil-avatar perfil-avatar-preview">
-
                     {fotoEditada ? (
-
                       <img
                         src={fotoEditada}
                         alt="Prévia da foto"
                         className="perfil-avatar-imagem"
                       />
-
                     ) : (
-
                       nomeEditado.charAt(0).toUpperCase() || 'U'
-
                     )}
-
                   </div>
 
                   <input
@@ -687,7 +593,6 @@ function Perfil() {
                   </button>
 
                   {fotoEditada && (
-
                     <button
                       type="button"
                       className="perfil-btn-remover-foto"
@@ -696,13 +601,11 @@ function Perfil() {
                     >
                       Remover foto
                     </button>
-
                   )}
 
                   <small>
                     PNG, JPG ou WEBP de até 1 MB.
                   </small>
-
                 </div>
 
                 <label
@@ -744,15 +647,12 @@ function Perfil() {
                 </small>
 
                 {erroEdicao && (
-
                   <p className="perfil-erro" role="alert">
                     {erroEdicao}
                   </p>
-
                 )}
 
                 <div className="perfil-editar-acoes">
-
                   <button
                     type="button"
                     className="perfil-btn-cancelar"
@@ -769,23 +669,14 @@ function Perfil() {
                   >
                     {salvando ? 'Salvando...' : 'Salvar alterações'}
                   </button>
-
                 </div>
-
               </form>
-
             </section>
-
           </>
-
         )}
-
       </main>
-
     </div>
-
   )
-
 }
 
 export default Perfil

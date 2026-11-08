@@ -1,17 +1,20 @@
+
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import API_URL from '../services/api'
 import './Login.css'
 
 function Login() {
+
   // =========================
   // ESTADOS
   // =========================
 
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
   const navigate = useNavigate()
-
 
   // =========================
   // FAZER LOGIN
@@ -26,9 +29,14 @@ function Login() {
       return
     }
 
+    if (carregando) return
+
+    setCarregando(true)
+
     try {
+
       const response = await fetch(
-        'http://localhost:3000/api/login',
+        `${API_URL}/api/login`,
         {
           method: 'POST',
 
@@ -37,15 +45,13 @@ function Login() {
           },
 
           body: JSON.stringify({
-            email,
+            email: email.trim(),
             senha
           })
         }
       )
 
-
       const data = await response.json()
-
 
       // =========================
       // LOGIN CORRETO
@@ -55,6 +61,7 @@ function Login() {
 
         // Salva somente os dados necessários
         // para identificar o usuário logado
+
         localStorage.setItem(
           'sessao_oinksafe',
           JSON.stringify({
@@ -64,9 +71,9 @@ function Login() {
           })
         )
 
-
         // Depois do login,
         // vai para a Home
+
         navigate('/')
 
       } else {
@@ -75,7 +82,6 @@ function Login() {
           data.message ||
           'Email ou senha inválidos.'
         )
-
       }
 
     } catch (error) {
@@ -86,11 +92,18 @@ function Login() {
       )
 
       alert(
-        'Erro ao conectar com o servidor.'
+        'Erro ao conectar com o servidor. Verifique sua conexão e tente novamente.'
       )
+
+    } finally {
+
+      setCarregando(false)
     }
   }
 
+  // =========================
+  // INTERFACE
+  // =========================
 
   return (
     <main className="login-page">
@@ -98,6 +111,7 @@ function Login() {
       <div className="login-card">
 
         {/* LOGO / NOME */}
+
         <h1>OinkSafe</h1>
 
         <h2>Entrar</h2>
@@ -106,8 +120,8 @@ function Login() {
           Acesse sua conta para continuar
         </p>
 
-
         {/* FORMULÁRIO */}
+
         <form onSubmit={fazerLogin}>
 
           <label htmlFor="email">
@@ -124,8 +138,8 @@ function Login() {
             placeholder="Digite seu email"
             autoComplete="email"
             required
+            disabled={carregando}
           />
-
 
           <label htmlFor="senha">
             Senha
@@ -141,17 +155,20 @@ function Login() {
             placeholder="Digite sua senha"
             autoComplete="current-password"
             required
+            disabled={carregando}
           />
 
-
-          <button type="submit">
-            Entrar
+          <button
+            type="submit"
+            disabled={carregando}
+          >
+            {carregando ? 'Entrando...' : 'Entrar'}
           </button>
 
         </form>
 
-
         {/* LINK PARA CADASTRO */}
+
         <p className="login-cadastro">
 
           Não tem uma conta?{' '}

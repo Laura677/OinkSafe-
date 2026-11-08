@@ -1,31 +1,38 @@
+
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import API_URL from '../services/api'
 import './Cadastro.css'
 
 function Cadastro() {
+
+  // =========================
+  // ESTADOS
+  // =========================
+
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
   const navigate = useNavigate()
-
 
   // =========================
   // CADASTRAR USUÁRIO
   // =========================
 
   async function cadastrarUsuario(event) {
-    event.preventDefault()
 
+    event.preventDefault()
 
     // =========================
     // VALIDAÇÕES
     // =========================
 
     if (
-      !nome ||
-      !email ||
+      !nome.trim() ||
+      !email.trim() ||
       !senha ||
       !confirmarSenha
     ) {
@@ -33,25 +40,32 @@ function Cadastro() {
       return
     }
 
-
     if (senha !== confirmarSenha) {
       alert('As senhas não coincidem.')
       return
     }
 
-
     if (senha.length < 6) {
-      alert(
-        'A senha deve ter pelo menos 6 caracteres.'
-      )
-
+      alert('A senha deve ter pelo menos 6 caracteres.')
       return
     }
 
+    // Evita múltiplos cadastros simultâneos.
+
+    if (carregando) {
+      return
+    }
+
+    setCarregando(true)
+
+    // =========================
+    // ENVIA PARA A API
+    // =========================
 
     try {
+
       const response = await fetch(
-        'http://localhost:3000/api/registrar',
+        `${API_URL}/api/registrar`,
         {
           method: 'POST',
 
@@ -60,16 +74,14 @@ function Cadastro() {
           },
 
           body: JSON.stringify({
-            nome,
-            email,
+            nome: nome.trim(),
+            email: email.trim(),
             senha
           })
         }
       )
 
-
       const data = await response.json()
-
 
       // =========================
       // CADASTRO REALIZADO
@@ -77,72 +89,61 @@ function Cadastro() {
 
       if (response.ok) {
 
-        alert(
-          'Cadastro realizado com sucesso!'
-        )
-
+        alert('Cadastro realizado com sucesso!')
 
         // Depois do cadastro,
         // envia o usuário para o login.
+
         navigate('/login')
 
       } else {
 
         alert(
           data.message ||
+          data.error ||
           'Não foi possível realizar o cadastro.'
         )
-
       }
 
     } catch (error) {
 
-      console.error(
-        'Erro no cadastro:',
-        error
-      )
-
+      console.error('Erro no cadastro:', error)
 
       alert(
-        'Erro ao conectar com o servidor.'
+        'Erro ao conectar com o servidor. Verifique sua conexão e tente novamente.'
       )
+
+    } finally {
+
+      setCarregando(false)
     }
   }
 
+  // =========================
+  // INTERFACE
+  // =========================
 
   return (
+
     <main className="cadastro-page">
 
       <div className="cadastro-card">
 
-
         {/* NOME DO SISTEMA */}
 
-        <h1>
-          OinkSafe
-        </h1>
-
+        <h1>OinkSafe</h1>
 
         {/* TÍTULO */}
 
-        <h2>
-          Criar conta
-        </h2>
-
+        <h2>Criar conta</h2>
 
         <p className="cadastro-subtitulo">
           Crie sua conta para começar a organizar suas finanças
         </p>
 
-
         {/* FORMULÁRIO */}
 
-        <form
-          onSubmit={
-            cadastrarUsuario
-          }
-        >
-
+        <form onSubmit={cadastrarUsuario}>
 
           {/* NOME */}
 
@@ -154,16 +155,14 @@ function Cadastro() {
             id="nome"
             type="text"
             value={nome}
-            onChange={(event) =>
-              setNome(
-                event.target.value
-              )
+            onChange={event =>
+              setNome(event.target.value)
             }
             placeholder="Digite seu nome"
             autoComplete="name"
             required
+            disabled={carregando}
           />
-
 
           {/* EMAIL */}
 
@@ -175,16 +174,14 @@ function Cadastro() {
             id="email"
             type="email"
             value={email}
-            onChange={(event) =>
-              setEmail(
-                event.target.value
-              )
+            onChange={event =>
+              setEmail(event.target.value)
             }
             placeholder="Digite seu email"
             autoComplete="email"
             required
+            disabled={carregando}
           />
-
 
           {/* SENHA */}
 
@@ -196,16 +193,15 @@ function Cadastro() {
             id="senha"
             type="password"
             value={senha}
-            onChange={(event) =>
-              setSenha(
-                event.target.value
-              )
+            onChange={event =>
+              setSenha(event.target.value)
             }
             placeholder="Crie uma senha"
             autoComplete="new-password"
+            minLength={6}
             required
+            disabled={carregando}
           />
-
 
           {/* CONFIRMAR SENHA */}
 
@@ -217,25 +213,26 @@ function Cadastro() {
             id="confirmarSenha"
             type="password"
             value={confirmarSenha}
-            onChange={(event) =>
-              setConfirmarSenha(
-                event.target.value
-              )
+            onChange={event =>
+              setConfirmarSenha(event.target.value)
             }
             placeholder="Digite a senha novamente"
             autoComplete="new-password"
+            minLength={6}
             required
+            disabled={carregando}
           />
-
 
           {/* BOTÃO */}
 
-          <button type="submit">
-            Criar conta
+          <button
+            type="submit"
+            disabled={carregando}
+          >
+            {carregando ? 'Criando conta...' : 'Criar conta'}
           </button>
 
         </form>
-
 
         {/* LINK PARA LOGIN */}
 

@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from 'react'
 
 import {
@@ -10,13 +11,13 @@ import {
 import { Doughnut } from 'react-chartjs-2'
 
 import Header from '../components/Header'
+import API_URL from '../services/api'
 
 import porquinho from '../imgs-oinksafe/porquinho.png'
 import iconeGastos from '../imgs-oinksafe/icone-gastos.png'
 import iconeAddGasto from '../imgs-oinksafe/icone-addgasto.png'
 
 import './Gastos.css'
-
 
 // =========================================================
 // CONFIGURAÇÃO DO CHART.JS
@@ -28,107 +29,68 @@ ChartJS.register(
   Legend
 )
 
-
 function Gastos() {
-
 
   // =========================================================
   // CATEGORIAS
   // =========================================================
 
-  const [categorias, setCategorias] =
-    useState([])
-
+  const [categorias, setCategorias] = useState([])
 
   // =========================================================
   // FORMULÁRIO
   // =========================================================
 
-  const [idCategoria, setIdCategoria] =
-    useState('')
-
-  const [valor, setValor] =
-    useState('')
-
-  const [descricao, setDescricao] =
-    useState('')
-
-  const [dataTransacao, setDataTransacao] =
-    useState('')
-
+  const [idCategoria, setIdCategoria] = useState('')
+  const [valor, setValor] = useState('')
+  const [descricao, setDescricao] = useState('')
+  const [dataTransacao, setDataTransacao] = useState('')
 
   // =========================================================
   // TRANSAÇÕES
   // =========================================================
 
-  const [transacoes, setTransacoes] =
-    useState([])
-
+  const [transacoes, setTransacoes] = useState([])
 
   // =========================================================
   // FILTROS
   // =========================================================
 
-  const [periodo, setPeriodo] =
-    useState('todos')
-
-  const [categoriaFiltro, setCategoriaFiltro] =
-    useState('todas')
-
+  const [periodo, setPeriodo] = useState('todos')
+  const [categoriaFiltro, setCategoriaFiltro] = useState('todas')
 
   // =========================================================
   // DATA ATUAL
   // =========================================================
 
-  const dataHoje =
-    new Date()
-      .toISOString()
-      .split('T')[0]
-
+  const dataHoje = new Date().toLocaleDateString('en-CA')
 
   // =========================================================
   // FORMATAR MOEDA
   // =========================================================
 
   function formatarMoeda(valor) {
-
-    return Number(
-      valor || 0
-    ).toLocaleString(
-      'pt-BR',
-      {
-
-        style: 'currency',
-        currency: 'BRL'
-
-      }
-    )
+    return Number(valor || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    })
   }
-
 
   // =========================================================
   // CARREGAR TRANSAÇÕES
   // =========================================================
 
-  function carregarTransacoes(
-    idUsuario
-  ) {
+  function carregarTransacoes(idUsuario) {
 
-    fetch(
-      `http://localhost:3000/api/transacoes/${idUsuario}`
-    )
+    fetch(`${API_URL}/api/transacoes/${idUsuario}`)
 
       .then(response => {
 
         if (!response.ok) {
-
-          throw new Error(
-            'Erro ao carregar transações'
-          )
+          throw new Error('Erro ao carregar transações')
         }
 
         return response.json()
-
       })
 
       .then(data => {
@@ -136,33 +98,17 @@ function Gastos() {
         // A API devolve receitas e despesas.
         // Nesta página queremos somente despesas.
 
-        const apenasDespesas =
-          data.filter(
-
-            transacao =>
-              transacao.tipo ===
-              'despesa'
-
-          )
-
-
-        setTransacoes(
-          apenasDespesas
+        const apenasDespesas = data.filter(
+          transacao => transacao.tipo === 'despesa'
         )
 
+        setTransacoes(apenasDespesas)
       })
 
       .catch(error => {
-
-        console.error(
-          'Erro ao buscar transações:',
-          error
-        )
-
+        console.error('Erro ao buscar transações:', error)
       })
-
   }
-
 
   // =========================================================
   // CARREGAMENTO DA PÁGINA
@@ -170,370 +116,175 @@ function Gastos() {
 
   useEffect(() => {
 
-
-    const sessao =
-      JSON.parse(
-        localStorage.getItem(
-          'sessao_oinksafe'
-        )
-      )
-
+    const sessao = JSON.parse(
+      localStorage.getItem('sessao_oinksafe')
+    )
 
     // =======================================================
     // CARREGA CATEGORIAS
     // =======================================================
 
-    fetch(
-      'http://localhost:3000/api/categorias'
-    )
+    fetch(`${API_URL}/api/categorias`)
 
-      .then(response =>
-        response.json()
-      )
+      .then(response => response.json())
 
       .then(data => {
 
-        const despesas =
-          data.filter(
-
-            categoria =>
-              categoria.tipo ===
-              'despesa'
-
-          )
-
-
-        setCategorias(
-          despesas
+        const despesas = data.filter(
+          categoria => categoria.tipo === 'despesa'
         )
 
+        setCategorias(despesas)
       })
 
       .catch(error => {
-
-        console.error(
-          'Erro ao buscar categorias:',
-          error
-        )
-
+        console.error('Erro ao buscar categorias:', error)
       })
-
 
     // =======================================================
     // CARREGA GASTOS DO USUÁRIO LOGADO
     // =======================================================
 
     if (sessao) {
-
-      carregarTransacoes(
-        sessao.id
-      )
-
+      carregarTransacoes(sessao.id)
     }
 
-
   }, [])
-
 
   // =========================================================
   // FILTRAR TRANSAÇÕES
   // =========================================================
 
-  const transacoesFiltradas =
-    useMemo(() => {
+  const transacoesFiltradas = useMemo(() => {
 
+    const hoje = new Date()
 
-      const hoje =
-        new Date()
+    return transacoes.filter(transacao => {
 
+      // =================================================
+      // FILTRO POR CATEGORIA
+      // =================================================
 
-      return transacoes.filter(
-
-        transacao => {
-
-
-          // =================================================
-          // FILTRO POR CATEGORIA
-          // =================================================
-
-          if (
-            categoriaFiltro !==
-            'todas'
-          ) {
-
-            if (
-              transacao.categoria !==
-              categoriaFiltro
-            ) {
-
-              return false
-
-            }
-
-          }
-
-
-          // =================================================
-          // TODOS
-          // =================================================
-
-          if (
-            periodo ===
-            'todos'
-          ) {
-
-            return true
-
-          }
-
-
-          // =================================================
-          // CONVERTER DATA
-          // =================================================
-
-          const dataTransacaoObjeto =
-            new Date(
-              transacao.data_transacao
-            )
-
-
-          if (
-            Number.isNaN(
-              dataTransacaoObjeto.getTime()
-            )
-          ) {
-
-            return false
-
-          }
-
-
-          // =================================================
-          // ESTE MÊS
-          // =================================================
-
-          if (
-            periodo ===
-            'mes'
-          ) {
-
-            return (
-
-              dataTransacaoObjeto.getMonth() ===
-                hoje.getMonth()
-
-              &&
-
-              dataTransacaoObjeto.getFullYear() ===
-                hoje.getFullYear()
-
-            )
-
-          }
-
-
-          // =================================================
-          // ÚLTIMOS 30 DIAS
-          // =================================================
-
-          if (
-            periodo ===
-            '30dias'
-          ) {
-
-            const limite =
-              new Date()
-
-
-            limite.setDate(
-              limite.getDate() - 30
-            )
-
-
-            return (
-              dataTransacaoObjeto >=
-              limite
-            )
-
-          }
-
-
-          return true
-
+      if (categoriaFiltro !== 'todas') {
+        if (transacao.categoria !== categoriaFiltro) {
+          return false
         }
+      }
 
+      // =================================================
+      // TODOS
+      // =================================================
+
+      if (periodo === 'todos') {
+        return true
+      }
+
+      // =================================================
+      // CONVERTER DATA
+      // =================================================
+
+      const dataTransacaoObjeto = new Date(
+        transacao.data_transacao
       )
 
+      if (Number.isNaN(dataTransacaoObjeto.getTime())) {
+        return false
+      }
 
-    }, [
+      // =================================================
+      // ESTE MÊS
+      // =================================================
 
-      transacoes,
-      periodo,
-      categoriaFiltro
+      if (periodo === 'mes') {
+        return (
+          dataTransacaoObjeto.getUTCMonth() === hoje.getMonth() &&
+          dataTransacaoObjeto.getUTCFullYear() === hoje.getFullYear()
+        )
+      }
 
-    ])
+      // =================================================
+      // ÚLTIMOS 30 DIAS
+      // =================================================
 
+      if (periodo === '30dias') {
+
+        const limite = new Date()
+        limite.setDate(limite.getDate() - 30)
+
+        return dataTransacaoObjeto >= limite
+      }
+
+      return true
+    })
+
+  }, [transacoes, periodo, categoriaFiltro])
 
   // =========================================================
   // TOTAL DE GASTOS
   // =========================================================
 
-  const totalGastos =
-    useMemo(() => {
+  const totalGastos = useMemo(() => {
 
+    return transacoesFiltradas.reduce(
+      (total, transacao) => {
+        return total + Number(transacao.valor)
+      },
+      0
+    )
 
-      return transacoesFiltradas.reduce(
-
-        (
-          total,
-          transacao
-        ) => {
-
-          return (
-
-            total +
-
-            Number(
-              transacao.valor
-            )
-
-          )
-
-        },
-
-        0
-
-      )
-
-
-    }, [transacoesFiltradas])
-
+  }, [transacoesFiltradas])
 
   // =========================================================
   // MÉDIA DIÁRIA
   // =========================================================
 
-  const mediaDiaria =
-    useMemo(() => {
+  const mediaDiaria = useMemo(() => {
 
+    if (transacoesFiltradas.length === 0) {
+      return 0
+    }
 
-      if (
-        transacoesFiltradas.length ===
-        0
-      ) {
+    const diasComGasto = new Set(
+      transacoesFiltradas.map(transacao => {
+        return String(transacao.data_transacao).slice(0, 10)
+      })
+    )
 
-        return 0
+    if (diasComGasto.size === 0) {
+      return 0
+    }
 
-      }
+    return totalGastos / diasComGasto.size
 
-
-      const diasComGasto =
-        new Set(
-
-          transacoesFiltradas.map(
-
-            transacao => {
-
-              return String(
-                transacao.data_transacao
-              ).slice(
-                0,
-                10
-              )
-
-            }
-
-          )
-
-        )
-
-
-      if (
-        diasComGasto.size ===
-        0
-      ) {
-
-        return 0
-
-      }
-
-
-      return (
-
-        totalGastos /
-        diasComGasto.size
-
-      )
-
-
-    }, [
-
-      transacoesFiltradas,
-      totalGastos
-
-    ])
-
+  }, [transacoesFiltradas, totalGastos])
 
   // =========================================================
   // AGRUPAR GASTOS POR CATEGORIA
   // =========================================================
 
-  const gastosPorCategoria =
-    useMemo(() => {
+  const gastosPorCategoria = useMemo(() => {
 
+    const agrupados = {}
 
-      const agrupados = {}
+    transacoesFiltradas.forEach(transacao => {
 
+      const categoria = transacao.categoria || 'Sem categoria'
 
-      transacoesFiltradas.forEach(
+      if (!agrupados[categoria]) {
+        agrupados[categoria] = 0
+      }
 
-        transacao => {
+      agrupados[categoria] += Number(transacao.valor)
+    })
 
+    return Object.entries(agrupados).map(
+      ([categoria, total]) => ({
+        categoria,
+        total
+      })
+    )
 
-          const categoria =
-
-            transacao.categoria ||
-            'Sem categoria'
-
-
-          if (
-            !agrupados[categoria]
-          ) {
-
-            agrupados[categoria] =
-              0
-
-          }
-
-
-          agrupados[categoria] +=
-            Number(
-              transacao.valor
-            )
-
-        }
-
-      )
-
-
-      return Object.entries(
-        agrupados
-      ).map(
-
-        (
-          [categoria, total]
-        ) => ({
-
-          categoria,
-          total
-
-        })
-
-      )
-
-
-    }, [transacoesFiltradas])
-
+  }, [transacoesFiltradas])
 
   // =========================================================
   // GRÁFICO
@@ -541,114 +292,67 @@ function Gastos() {
 
   const dadosGrafico = {
 
-
-    labels:
-      gastosPorCategoria.map(
-
-        item =>
-          item.categoria
-
-      ),
-
+    labels: gastosPorCategoria.map(
+      item => item.categoria
+    ),
 
     datasets: [
-
       {
-
-        data:
-          gastosPorCategoria.map(
-
-            item =>
-              item.total
-
-          ),
-
+        data: gastosPorCategoria.map(
+          item => item.total
+        ),
 
         backgroundColor: [
-
           '#9d3cff',
           '#69ff00',
           '#6d28d9',
           '#a855f7',
           '#84cc16',
           '#7c3aed'
-
         ],
 
-
         borderWidth: 0
-
       }
-
     ]
-
   }
-
 
   const opcoesGrafico = {
 
-
     responsive: true,
-
     maintainAspectRatio: false,
-
     cutout: '68%',
 
-
     plugins: {
-
 
       legend: {
 
         position: 'right',
 
         labels: {
-
           color: '#d5d5d5',
-
           boxWidth: 10,
-
           usePointStyle: true
-
         }
-
       }
-
     }
-
   }
-
 
   // =========================================================
   // CADASTRAR GASTO
   // =========================================================
 
-  async function cadastrarGasto(
-    event
-  ) {
-
+  async function cadastrarGasto(event) {
 
     event.preventDefault()
 
-
-    const sessao =
-      JSON.parse(
-        localStorage.getItem(
-          'sessao_oinksafe'
-        )
-      )
-
+    const sessao = JSON.parse(
+      localStorage.getItem('sessao_oinksafe')
+    )
 
     if (!sessao) {
-
-      alert(
-        'Faça login para cadastrar um gasto.'
-      )
-
+      alert('Faça login para cadastrar um gasto.')
       return
-
     }
-
 
     // =======================================================
     // CAMPOS OBRIGATÓRIOS
@@ -660,50 +364,27 @@ function Gastos() {
       !descricao ||
       !dataTransacao
     ) {
-
-      alert(
-        'Preencha todos os campos.'
-      )
-
+      alert('Preencha todos os campos.')
       return
-
     }
-
 
     // =======================================================
     // VALOR
     // =======================================================
 
-    if (
-      Number(valor) <= 0
-    ) {
-
-      alert(
-        'Informe um valor maior que zero.'
-      )
-
+    if (Number(valor) <= 0) {
+      alert('Informe um valor maior que zero.')
       return
-
     }
-
 
     // =======================================================
     // DATA FUTURA
     // =======================================================
 
-    if (
-      dataTransacao >
-      dataHoje
-    ) {
-
-      alert(
-        'A data do gasto não pode ser futura.'
-      )
-
+    if (dataTransacao > dataHoje) {
+      alert('A data do gasto não pode ser futura.')
       return
-
     }
-
 
     // =======================================================
     // ENVIA PARA API
@@ -711,124 +392,64 @@ function Gastos() {
 
     try {
 
+      const response = await fetch(
+        `${API_URL}/api/transacoes`,
+        {
+          method: 'POST',
 
-      const response =
-        await fetch(
+          headers: {
+            'Content-Type': 'application/json'
+          },
 
-          'http://localhost:3000/api/transacoes',
+          body: JSON.stringify({
+            id_usuario: sessao.id,
+            id_categoria: Number(idCategoria),
+            valor: Number(valor),
+            descricao,
+            data_transacao: dataTransacao
+          })
+        }
+      )
 
-          {
+      const data = await response.json()
 
-            method: 'POST',
+      if (response.ok) {
 
-            headers: {
-
-              'Content-Type':
-                'application/json'
-
-            },
-
-            body:
-              JSON.stringify({
-
-                id_usuario:
-                  sessao.id,
-
-                id_categoria:
-                  Number(
-                    idCategoria
-                  ),
-
-                valor:
-                  Number(
-                    valor
-                  ),
-
-                descricao,
-
-                data_transacao:
-                  dataTransacao
-
-              })
-
-          }
-
-        )
-
-
-      const data =
-        await response.json()
-
-
-      if (
-        response.ok
-      ) {
-
-
-        alert(
-          'Gasto cadastrado com sucesso!'
-        )
-
+        alert('Gasto cadastrado com sucesso!')
 
         setIdCategoria('')
-
         setValor('')
-
         setDescricao('')
-
         setDataTransacao('')
 
-
-        carregarTransacoes(
-          sessao.id
-        )
-
+        carregarTransacoes(sessao.id)
 
       } else {
 
-
         alert(
-
           data.message ||
           'Erro ao cadastrar gasto.'
-
         )
-
       }
-
 
     } catch (error) {
 
+      console.error('Erro ao cadastrar gasto:', error)
 
-      console.error(
-        'Erro ao cadastrar gasto:',
-        error
-      )
-
-
-      alert(
-        'Erro ao conectar com o servidor.'
-      )
-
+      alert('Erro ao conectar com o servidor.')
     }
-
   }
-
 
   // =========================================================
   // INTERFACE
   // =========================================================
 
   return (
-
     <div>
-
 
       <Header />
 
-
       <main className="gastos">
-
 
         {/* ================================================= */}
         {/* CABEÇALHO */}
@@ -836,24 +457,15 @@ function Gastos() {
 
         <section className="gastos-cabecalho">
 
-
           <div className="gastos-cabecalho-texto">
 
-            <h1>
-
-              Gastos
-
-            </h1>
-
+            <h1>Gastos</h1>
 
             <p>
-
               Acompanhe e gerencie seus gastos
-
             </p>
 
           </div>
-
 
           <img
             src={porquinho}
@@ -861,9 +473,7 @@ function Gastos() {
             className="porquinho-gastos"
           />
 
-
         </section>
-
 
         {/* ================================================= */}
         {/* FILTROS */}
@@ -871,100 +481,52 @@ function Gastos() {
 
         <section className="gastos-filtros">
 
-
           <select
-
-            value={
-              periodo
+            value={periodo}
+            onChange={event =>
+              setPeriodo(event.target.value)
             }
-
-            onChange={
-              event =>
-                setPeriodo(
-                  event.target.value
-                )
-            }
-
           >
-
 
             <option value="todos">
-
               Todos os gastos
-
             </option>
-
 
             <option value="mes">
-
               Este mês
-
             </option>
-
 
             <option value="30dias">
-
               Últimos 30 dias
-
             </option>
 
-
           </select>
-
 
           <select
-
-            value={
-              categoriaFiltro
+            value={categoriaFiltro}
+            onChange={event =>
+              setCategoriaFiltro(event.target.value)
             }
-
-            onChange={
-              event =>
-                setCategoriaFiltro(
-                  event.target.value
-                )
-            }
-
           >
 
-
             <option value="todas">
-
               Todas as categorias
-
             </option>
 
+            {categorias.map(categoria => (
 
-            {categorias.map(
+              <option
+                key={categoria.id_categoria}
+                value={categoria.nome}
+              >
+                {categoria.nome}
+              </option>
 
-              categoria => (
-
-                <option
-
-                  key={
-                    categoria.id_categoria
-                  }
-
-                  value={
-                    categoria.nome
-                  }
-
-                >
-
-                  {categoria.nome}
-
-                </option>
-
-              )
-
-            )}
-
+            ))}
 
           </select>
 
-
         </section>
-
 
         {/* ================================================= */}
         {/* RESUMO */}
@@ -972,67 +534,35 @@ function Gastos() {
 
         <section className="gastos-resumo">
 
-
           <div className="gastos-card-resumo">
 
-
-            <span>
-
-              Total de gastos
-
-            </span>
-
+            <span>Total de gastos</span>
 
             <strong className="gasto-destaque-roxo">
-
-              {formatarMoeda(
-                totalGastos
-              )}
-
+              {formatarMoeda(totalGastos)}
             </strong>
 
-
             <small>
-
               No período selecionado
-
             </small>
 
-
           </div>
-
 
           <div className="gastos-card-resumo">
 
-
-            <span>
-
-              Média diária
-
-            </span>
-
+            <span>Média diária</span>
 
             <strong className="gasto-destaque-verde">
-
-              {formatarMoeda(
-                mediaDiaria
-              )}
-
+              {formatarMoeda(mediaDiaria)}
             </strong>
 
-
             <small>
-
               Média nos dias com gastos
-
             </small>
-
 
           </div>
 
-
         </section>
-
 
         {/* ================================================= */}
         {/* GRÁFICO */}
@@ -1040,60 +570,30 @@ function Gastos() {
 
         <section className="gastos-bloco">
 
-
           <div className="gastos-bloco-topo">
-
-            <h2>
-
-              Gastos por categoria
-
-            </h2>
-
+            <h2>Gastos por categoria</h2>
           </div>
-
 
           <div className="gastos-grafico">
 
-
-            {gastosPorCategoria.length ===
-            0 ? (
-
+            {gastosPorCategoria.length === 0 ? (
 
               <div className="gastos-vazio">
-
-                <p>
-
-                  Nenhum gasto encontrado.
-
-                </p>
-
+                <p>Nenhum gasto encontrado.</p>
               </div>
-
 
             ) : (
 
-
               <Doughnut
-
-                data={
-                  dadosGrafico
-                }
-
-                options={
-                  opcoesGrafico
-                }
-
+                data={dadosGrafico}
+                options={opcoesGrafico}
               />
-
 
             )}
 
-
           </div>
 
-
         </section>
-
 
         {/* ================================================= */}
         {/* NOVO GASTO */}
@@ -1101,27 +601,12 @@ function Gastos() {
 
         <section className="gastos-bloco">
 
-
           <div className="gastos-bloco-topo">
 
-
             <div>
-
-              <h2>
-
-                Novo gasto
-
-              </h2>
-
-
-              <p>
-
-                Registre uma nova despesa
-
-              </p>
-
+              <h2>Novo gasto</h2>
+              <p>Registre uma nova despesa</p>
             </div>
-
 
             <img
               src={iconeAddGasto}
@@ -1129,205 +614,102 @@ function Gastos() {
               className="icone-novo-gasto"
             />
 
-
           </div>
 
-
           <form
-
-            onSubmit={
-              cadastrarGasto
-            }
-
+            onSubmit={cadastrarGasto}
             className="form-gastos"
-
           >
-
 
             {/* CATEGORIA */}
 
             <div className="campo-gasto">
 
-              <label>
-
-                Categoria
-
-              </label>
-
+              <label>Categoria</label>
 
               <select
-
-                value={
-                  idCategoria
+                value={idCategoria}
+                onChange={event =>
+                  setIdCategoria(event.target.value)
                 }
-
-                onChange={
-                  event =>
-                    setIdCategoria(
-                      event.target.value
-                    )
-                }
-
               >
 
-
                 <option value="">
-
                   Selecione uma categoria
-
                 </option>
 
+                {categorias.map(categoria => (
 
-                {categorias.map(
+                  <option
+                    key={categoria.id_categoria}
+                    value={categoria.id_categoria}
+                  >
+                    {categoria.nome}
+                  </option>
 
-                  categoria => (
-
-                    <option
-
-                      key={
-                        categoria.id_categoria
-                      }
-
-                      value={
-                        categoria.id_categoria
-                      }
-
-                    >
-
-                      {categoria.nome}
-
-                    </option>
-
-                  )
-
-                )}
-
+                ))}
 
               </select>
 
-
             </div>
-
 
             {/* VALOR */}
 
             <div className="campo-gasto">
 
-
-              <label>
-
-                Valor
-
-              </label>
-
+              <label>Valor</label>
 
               <input
-
                 type="number"
-
                 step="0.01"
-
                 min="0.01"
-
-                value={
-                  valor
+                value={valor}
+                onChange={event =>
+                  setValor(event.target.value)
                 }
-
-                onChange={
-                  event =>
-                    setValor(
-                      event.target.value
-                    )
-                }
-
                 placeholder="R$ 0,00"
-
               />
 
-
             </div>
-
 
             {/* DESCRIÇÃO */}
 
             <div className="campo-gasto">
 
-
-              <label>
-
-                Descrição
-
-              </label>
-
+              <label>Descrição</label>
 
               <input
-
                 type="text"
-
-                value={
-                  descricao
+                value={descricao}
+                onChange={event =>
+                  setDescricao(event.target.value)
                 }
-
-                onChange={
-                  event =>
-                    setDescricao(
-                      event.target.value
-                    )
-                }
-
                 placeholder="Ex: Almoço"
-
               />
 
-
             </div>
-
 
             {/* DATA */}
 
             <div className="campo-gasto">
 
-
-              <label>
-
-                Data
-
-              </label>
-
+              <label>Data</label>
 
               <input
-
                 type="date"
-
-                value={
-                  dataTransacao
+                value={dataTransacao}
+                max={dataHoje}
+                onChange={event =>
+                  setDataTransacao(event.target.value)
                 }
-
-                max={
-                  dataHoje
-                }
-
-                onChange={
-                  event =>
-                    setDataTransacao(
-                      event.target.value
-                    )
-                }
-
               />
-
 
             </div>
 
-
             <button
-
               type="submit"
-
               className="btn-adicionar-gasto"
-
             >
-
 
               <img
                 src={iconeAddGasto}
@@ -1335,18 +717,13 @@ function Gastos() {
                 className="icone-botao-gasto"
               />
 
-
               Adicionar gasto
-
 
             </button>
 
-
           </form>
 
-
         </section>
-
 
         {/* ================================================= */}
         {/* LISTA DE GASTOS */}
@@ -1354,150 +731,78 @@ function Gastos() {
 
         <section className="gastos-bloco lista-gastos">
 
-
           <div className="gastos-bloco-topo">
-
-
-            <h2>
-
-              Lista de gastos
-
-            </h2>
-
-
+            <h2>Lista de gastos</h2>
           </div>
 
-
-          {transacoesFiltradas.length ===
-          0 ? (
-
+          {transacoesFiltradas.length === 0 ? (
 
             <div className="gastos-vazio">
-
-
-              <p>
-
-                Nenhum gasto encontrado.
-
-              </p>
-
-
+              <p>Nenhum gasto encontrado.</p>
             </div>
-
 
           ) : (
 
-
             <div className="gastos-lista">
 
+              {transacoesFiltradas.map(transacao => (
 
-              {transacoesFiltradas.map(
+                <div
+                  className="gasto-item"
+                  key={transacao.id_transacao}
+                >
 
-                transacao => (
+                  <div className="gasto-item-esquerda">
 
+                    <div className="gasto-icone">
 
-                  <div
-
-                    className="gasto-item"
-
-                    key={
-                      transacao.id_transacao
-                    }
-
-                  >
-
-
-                    <div className="gasto-item-esquerda">
-
-
-                      <div className="gasto-icone">
-
-
-                        <img
-                          src={iconeGastos}
-                          alt=""
-                        />
-
-
-                      </div>
-
-
-                      <div className="gasto-informacoes">
-
-
-                        <strong>
-
-                          {transacao.descricao}
-
-                        </strong>
-
-
-                        <p>
-
-                          {transacao.categoria}
-
-                        </p>
-
-
-                        <small>
-
-                          {new Date(
-                            transacao.data_transacao
-                          ).toLocaleDateString(
-                            'pt-BR',
-                            {
-
-                              timeZone:
-                                'UTC'
-
-                            }
-                          )}
-
-                        </small>
-
-
-                      </div>
-
+                      <img
+                        src={iconeGastos}
+                        alt=""
+                      />
 
                     </div>
 
+                    <div className="gasto-informacoes">
 
-                    <span className="gasto-valor">
+                      <strong>
+                        {transacao.descricao}
+                      </strong>
 
+                      <p>
+                        {transacao.categoria}
+                      </p>
 
-                      - {formatarMoeda(
-                        transacao.valor
-                      )}
+                      <small>
+                        {new Date(
+                          transacao.data_transacao
+                        ).toLocaleDateString(
+                          'pt-BR',
+                          { timeZone: 'UTC' }
+                        )}
+                      </small>
 
-
-                    </span>
-
+                    </div>
 
                   </div>
 
+                  <span className="gasto-valor">
+                    - {formatarMoeda(transacao.valor)}
+                  </span>
 
-                )
+                </div>
 
-              )}
-
+              ))}
 
             </div>
 
-
           )}
-
 
         </section>
 
-
       </main>
-
-
     </div>
-
   )
-
 }
-
 
 export default Gastos
