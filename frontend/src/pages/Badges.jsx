@@ -102,13 +102,13 @@ function ImagemBadge({ src, nome }) {
 function formatarData(valor) {
 
   if (!valor) {
-    return 'Data não disponível'
+    return null
   }
 
   const data = new Date(valor)
 
   if (Number.isNaN(data.getTime())) {
-    return 'Data não disponível'
+    return null
   }
 
   return data.toLocaleDateString('pt-BR')
@@ -150,14 +150,13 @@ function Badges() {
           )
         }
 
-        // Utiliza a API configurada para o ambiente.
-        // Local: localhost
-        // Produção: backend publicado no Railway
+        // API local ou publicada no Railway
 
         const resposta = await fetch(
           `${API_URL}/api/badges/${encodeURIComponent(sessao.id)}`,
           {
-            signal: controller.signal
+            signal: controller.signal,
+            cache: 'no-store'
           }
         )
 
@@ -196,6 +195,7 @@ function Badges() {
         if (!controller.signal.aborted) {
           setCarregando(false)
         }
+
       }
     }
 
@@ -206,14 +206,51 @@ function Badges() {
   }, [tentativa])
 
   // ========================================
+  // VERIFICAR SE UMA BADGE FOI CONQUISTADA
+  // ========================================
+
+  function buscarConquista(idBadge) {
+
+    return conquistas.find(
+      conquista =>
+        conquista.id === idBadge ||
+        conquista.badgeId === idBadge
+    )
+  }
+
+  function verificarDesbloqueio(conquista) {
+
+    if (!conquista) {
+      return false
+    }
+
+    // Formato atual do backend Node.js
+    if (typeof conquista.conquistada === 'boolean') {
+      return conquista.conquistada
+    }
+
+    if (typeof conquista.desbloqueada === 'boolean') {
+      return conquista.desbloqueada
+    }
+
+    // Compatibilidade com o formato antigo do Java
+    return Boolean(
+      conquista.badgeId &&
+      conquista.dataConquista
+    )
+  }
+
+  // ========================================
   // CONTADOR DE BADGES CONQUISTADAS
   // ========================================
 
-  const totalConquistadas = catalogo.filter(badge =>
-    conquistas.some(
-      conquista => conquista.badgeId === badge.id
-    )
-  ).length
+  const totalConquistadas = catalogo.filter(badge => {
+
+    const conquista = buscarConquista(badge.id)
+
+    return verificarDesbloqueio(conquista)
+
+  }).length
 
   const porcentagem = Math.round(
     (totalConquistadas / catalogo.length) * 100
@@ -354,11 +391,19 @@ function Badges() {
 
               {catalogo.map(badge => {
 
-                const conquista = conquistas.find(
-                  item => item.badgeId === badge.id
-                )
+                // Busca a conquista pelo ID correto
 
-                const desbloqueada = Boolean(conquista)
+                const conquista = buscarConquista(badge.id)
+
+                // Verifica o status retornado pelo backend
+
+                const desbloqueada =
+                  verificarDesbloqueio(conquista)
+
+                const dataConquista = formatarData(
+                  conquista?.dataConquista ||
+                  conquista?.data_conquista
+                )
 
                 return (
 
@@ -412,10 +457,12 @@ function Badges() {
                     {desbloqueada ? (
 
                       <p className="badge-data">
-                        Conquistada em{' '}
-                        {formatarData(
-                          conquista.dataConquista
-                        )}
+
+                        {dataConquista
+                          ? `Conquistada em ${dataConquista}`
+                          : 'Conquista desbloqueada!'
+                        }
+
                       </p>
 
                     ) : (
