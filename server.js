@@ -1,11 +1,8 @@
-// ========================================
-// OINKSAFE - BACKEND NODE.JS
-// ========================================
 
 const express = require('express')
 const cors = require('cors')
 const bcrypt = require('bcrypt')
-const http = require('http')
+const https = require('https')
 const db = require('./db')
 
 const app = express()
@@ -16,32 +13,27 @@ app.use(express.json())
 const PORT = process.env.PORT || 3000
 
 // ========================================
-// INTEGRAÇÃO COM JAVA
+// INTEGRAÇÃO JAVA + RAILWAY
 // ========================================
 
-const BADGES_API_KEY =
-    process.env.BADGES_API_KEY || 'oinksafe-local-badges'
-
-const BADGES_HOST = process.env.BADGES_HOST || '127.0.0.1'
-const BADGES_PORT = Number(process.env.BADGES_PORT || 8080)
+const BADGES_URL = (
+    process.env.BADGES_URL ||
+    'https://oinksafe-badges-production.up.railway.app'
+).replace(/\/+$/, '')
 
 function chamarBadges(metodo, caminho) {
-
     return new Promise((resolve, reject) => {
+        const url = new URL(caminho, `${BADGES_URL}/`)
 
-        const pedido = http.request({
+        if (url.protocol !== 'https:') {
+            return reject(new Error('BADGES_URL deve usar HTTPS'))
+        }
 
-            hostname: BADGES_HOST,
-            port: BADGES_PORT,
-            path: caminho,
+        const pedido = https.request(url, {
             method: metodo,
-
-            headers: {
-                'X-Badges-Key': BADGES_API_KEY
-            }
-
+            headers: { Accept: 'application/json' },
+            timeout: 10000
         }, resposta => {
-
             let texto = ''
 
             resposta.on('data', parte => {
@@ -49,38 +41,30 @@ function chamarBadges(metodo, caminho) {
             })
 
             resposta.on('end', () => {
-
-                if (
-                    resposta.statusCode < 200 ||
-                    resposta.statusCode >= 300
-                ) {
-                    return reject(
-                        new Error(`Erro Java: ${resposta.statusCode}`)
-                    )
+                if (resposta.statusCode < 200 ||
+                    resposta.statusCode >= 300) {
+                    return reject(new Error(
+                        `Erro na API Java: ${resposta.statusCode}`
+                    ))
                 }
 
                 try {
                     resolve(texto ? JSON.parse(texto) : null)
                 } catch (erro) {
-                    reject(erro)
+                    reject(new Error('Resposta JSON inválida do Java'))
                 }
-
             })
 
             resposta.on('error', reject)
-
         })
 
-        pedido.setTimeout(5000, () => {
-            pedido.destroy(new Error('Tempo limite do Java'))
+        pedido.on('timeout', () => {
+            pedido.destroy(new Error('Tempo limite da API Java'))
         })
 
         pedido.on('error', reject)
-
         pedido.end()
-
     })
-
 }
 
 // ========================================
@@ -88,37 +72,24 @@ function chamarBadges(metodo, caminho) {
 // ========================================
 
 function consultarSQL(sql, parametros = []) {
-
     return new Promise((resolve, reject) => {
-
         db.query(sql, parametros, (erro, resultado) => {
-
-            if (erro) {
-                return reject(erro)
-            }
-
+            if (erro) return reject(erro)
             resolve(resultado)
-
         })
-
     })
-
 }
 
 // ========================================
-// VALIDAR IDENTIFICADOR
+// VALIDAÇÕES
 // ========================================
 
 function idValido(id) {
-
     const numero = Number(id)
-
     return Number.isSafeInteger(numero) && numero > 0
-
 }
 
 function valorValido(valor, permitirZero = false) {
-
     const numero = Number(valor)
 
     return (
@@ -128,79 +99,53 @@ function valorValido(valor, permitirZero = false) {
         Number.isFinite(numero) &&
         (permitirZero ? numero >= 0 : numero > 0)
     )
-
 }
 
 // ========================================
-// SINCRONIZAR AS SEIS BADGES
+// CALCULAR BADGES DO USUÁRIO
 // ========================================
 
 async function sincronizarBadges(idUsuario) {
-
     if (!idValido(idUsuario)) {
         throw new Error('Usuário inválido')
     }
 
     const id = Number(idUsuario)
 
-    // Consulta transações existentes.
-
     const transacoes = await consultarSQL(
-
         `SELECT COUNT(*) AS total
          FROM transacoes
          WHERE id_usuario = ?`,
-
         [id]
-
     )
 
-    // Consulta as metas financeiras.
-
     const metas = await consultarSQL(
-
         `SELECT
-
             COUNT(*) AS total,
 
-            COALESCE(
-                SUM(
-                    CASE
-                        WHEN valor_atual > 0
-                        THEN 1 ELSE 0
-                    END
-                ), 0
-            ) AS metas_com_dinheiro,
+            COALESCE(SUM(
+                CASE WHEN valor_atual > 0
+                THEN 1 ELSE 0 END
+            ), 0) AS metas_com_dinheiro,
 
-            COALESCE(
-                MAX(
-                    CASE
-                        WHEN valor_alvo > 0
-                        AND valor_atual >= valor_alvo * 0.5
-                        THEN 1 ELSE 0
-                    END
-                ), 0
-            ) AS metade_alcancada,
+            COALESCE(MAX(
+                CASE WHEN valor_alvo > 0
+                AND valor_atual >= valor_alvo * 0.5
+                THEN 1 ELSE 0 END
+            ), 0) AS metade_alcancada,
 
-            COALESCE(
-                MAX(
-                    CASE
-                        WHEN valor_alvo > 0
-                        AND valor_atual >= valor_alvo
-                        THEN 1 ELSE 0
-                    END
-                ), 0
-            ) AS meta_concluida,
+            COALESCE(MAX(
+                CASE WHEN valor_alvo > 0
+                AND valor_atual >= valor_alvo
+                THEN 1 ELSE 0 END
+            ), 0) AS meta_concluida,
 
-            COALESCE(
-                SUM(valor_atual), 0
-            ) AS total_guardado
+            COALESCE(SUM(valor_atual), 0)
+                AS total_guardado
 
          FROM metas
          WHERE id_usuario = ?`,
-
         [id]
-
     )
 
     const dadosTransacoes = transacoes[0]
@@ -208,87 +153,31 @@ async function sincronizarBadges(idUsuario) {
 
     const conquistas = []
 
-    // BADGE 1 - PRIMEIROS PASSOS
-
     if (Number(dadosTransacoes.total) >= 1) {
-
-        conquistas.push('primeira-transacao')
-
+        conquistas.push('primeira_transacao')
     }
-
-    // BADGE 2 - PRIMEIRA META
 
     if (Number(dadosMetas.total) >= 1) {
-
-        conquistas.push('primeira-meta')
-
+        conquistas.push('primeira_meta')
     }
-
-    // BADGE 3 - POUPADOR
 
     if (Number(dadosMetas.metas_com_dinheiro) >= 1) {
-
         conquistas.push('poupador')
-
     }
-
-    // BADGE 4 - FOCO NO PLANO
 
     if (Number(dadosMetas.metade_alcancada) >= 1) {
-
-        conquistas.push('foco-no-plano')
-
+        conquistas.push('foco_no_plano')
     }
-
-    // BADGE 5 - META CONCLUÍDA
 
     if (Number(dadosMetas.meta_concluida) >= 1) {
-
-        conquistas.push('meta-concluida')
-
+        conquistas.push('meta_concluida')
     }
-
-    // BADGE 6 - COFRE CHEIO
 
     if (Number(dadosMetas.total_guardado) >= 1000) {
-
-        conquistas.push('cofre-cheio')
-
-    }
-
-    // Envia as conquistas para o Java.
-
-    for (const conquista of conquistas) {
-
-        await chamarBadges(
-
-            'POST',
-
-            `/api/interno/conquistas/${id}/${conquista}`
-
-        )
-
+        conquistas.push('cofre_cheio')
     }
 
     return conquistas
-
-}
-
-// ========================================
-// SINCRONIZAÇÃO SEM BLOQUEAR OPERAÇÕES
-// ========================================
-
-function sincronizarSemBloquear(idUsuario) {
-
-    sincronizarBadges(idUsuario).catch(erro => {
-
-        console.warn(
-            'Sincronização de badges pendente:',
-            erro.message
-        )
-
-    })
-
 }
 
 // ========================================
@@ -296,58 +185,43 @@ function sincronizarSemBloquear(idUsuario) {
 // ========================================
 
 app.get('/', (req, res) => {
-
     res.json({
         status: 'ok',
         mensagem: 'API OinkSafe funcionando'
     })
-
 })
 
 // ========================================
-// CADASTRAR USUÁRIO
+// CADASTRO
 // ========================================
 
 app.post('/api/registrar', async (req, res) => {
-
     const { nome, email, senha } = req.body
 
     if (!nome || !email || !senha) {
-
         return res.status(400).json({
             message: 'Preencha todos os campos.'
         })
-
     }
 
     try {
-
         const usuarios = await consultarSQL(
-
             'SELECT id_usuario FROM usuarios WHERE email = ?',
-
             [email]
-
         )
 
         if (usuarios.length > 0) {
-
             return res.status(400).json({
                 message: 'Este email já está cadastrado!'
             })
-
         }
 
         const hashSenha = await bcrypt.hash(senha, 10)
 
         await consultarSQL(
-
-            `INSERT INTO usuarios
-             (nome, email, senha)
+            `INSERT INTO usuarios (nome, email, senha)
              VALUES (?, ?, ?)`,
-
             [nome, email, hashSenha]
-
         )
 
         res.status(201).json({
@@ -355,13 +229,10 @@ app.post('/api/registrar', async (req, res) => {
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -369,33 +240,24 @@ app.post('/api/registrar', async (req, res) => {
 // ========================================
 
 app.post('/api/login', async (req, res) => {
-
     const { email, senha } = req.body
 
     if (!email || !senha) {
-
         return res.status(400).json({
             message: 'Preencha email e senha.'
         })
-
     }
 
     try {
-
         const usuarios = await consultarSQL(
-
             'SELECT * FROM usuarios WHERE email = ?',
-
             [email]
-
         )
 
         if (usuarios.length === 0) {
-
             return res.status(400).json({
                 message: 'Email ou senha incorretos!'
             })
-
         }
 
         const usuario = usuarios[0]
@@ -406,41 +268,34 @@ app.post('/api/login', async (req, res) => {
         )
 
         if (!senhaValida) {
-
             return res.status(400).json({
                 message: 'Email ou senha incorretos!'
             })
-
         }
 
         res.status(200).json({
-
             message: 'Login com sucesso',
-
             usuario: {
                 id: usuario.id_usuario,
                 nome: usuario.nome,
                 email: usuario.email
             }
-
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
+
 // ========================================
-// EDITAR PERFIL DO USUÁRIO
+// EDITAR PERFIL
 // ========================================
 
 app.put('/api/usuarios/:id_usuario/perfil', async (req, res) => {
-
     const idUsuario = Number(req.params.id_usuario)
+
     const nome = typeof req.body.nome === 'string'
         ? req.body.nome.trim()
         : ''
@@ -458,7 +313,6 @@ app.put('/api/usuarios/:id_usuario/perfil', async (req, res) => {
     }
 
     try {
-
         const resultado = await consultarSQL(
             'UPDATE usuarios SET nome = ? WHERE id_usuario = ?',
             [nome, idUsuario]
@@ -471,7 +325,8 @@ app.put('/api/usuarios/:id_usuario/perfil', async (req, res) => {
         }
 
         const usuarios = await consultarSQL(
-            'SELECT id_usuario, nome, email FROM usuarios WHERE id_usuario = ?',
+            `SELECT id_usuario, nome, email
+             FROM usuarios WHERE id_usuario = ?`,
             [idUsuario]
         )
 
@@ -487,22 +342,19 @@ app.put('/api/usuarios/:id_usuario/perfil', async (req, res) => {
         })
 
     } catch (erro) {
-
         console.error('Erro ao atualizar perfil:', erro)
 
         res.status(500).json({
             message: 'Não foi possível atualizar o perfil.'
         })
-
     }
-
 })
+
 // ========================================
 // CRIAR META
 // ========================================
 
 app.post('/api/metas', async (req, res) => {
-
     const {
         id_usuario,
         titulo,
@@ -517,34 +369,24 @@ app.post('/api/metas', async (req, res) => {
         !valorValido(valor_alvo) ||
         !valorValido(valor_atual ?? 0, true)
     ) {
-
         return res.status(400).json({
             message: 'Informe dados válidos para a meta.'
         })
-
     }
 
     const objetivo = Number(valor_alvo)
     const atual = Number(valor_atual ?? 0)
 
-    const status =
-        atual >= objetivo ? 'concluida' : 'em_andamento'
+    const status = atual >= objetivo
+        ? 'concluida'
+        : 'em_andamento'
 
     try {
-
         const resultado = await consultarSQL(
-
             `INSERT INTO metas
-             (
-                id_usuario,
-                titulo,
-                valor_alvo,
-                valor_atual,
-                cor_destaque,
-                status
-             )
+             (id_usuario, titulo, valor_alvo,
+              valor_atual, cor_destaque, status)
              VALUES (?, ?, ?, ?, ?, ?)`,
-
             [
                 id_usuario,
                 titulo,
@@ -553,26 +395,18 @@ app.post('/api/metas', async (req, res) => {
                 cor_destaque || '#75ff00',
                 status
             ]
-
         )
 
-        sincronizarSemBloquear(id_usuario)
-
         res.status(201).json({
-
             message: 'Meta criada com sucesso!',
             id_meta: resultado.insertId
-
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -580,197 +414,141 @@ app.post('/api/metas', async (req, res) => {
 // ========================================
 
 app.get('/api/metas/:id_usuario', async (req, res) => {
-
     try {
-
         const metas = await consultarSQL(
-
-            `SELECT *
-             FROM metas
+            `SELECT * FROM metas
              WHERE id_usuario = ?
              AND status != 'resgatada'
              ORDER BY id_meta DESC`,
-
             [req.params.id_usuario]
-
         )
 
         res.json(metas)
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
-// ADICIONAR DINHEIRO À META
+// ADICIONAR VALOR À META
 // ========================================
 
 app.put('/api/metas/adicionar-valor/:id_meta', async (req, res) => {
-
     const { id_meta } = req.params
     const valor = Number(req.body.valor)
 
     if (!valorValido(req.body.valor)) {
-
         return res.status(400).json({
             message: 'Informe um valor válido.'
         })
-
     }
 
     try {
-
         const metas = await consultarSQL(
-
-            `SELECT *
-             FROM metas
-             WHERE id_meta = ?`,
-
+            'SELECT * FROM metas WHERE id_meta = ?',
             [id_meta]
-
         )
 
-        if (metas.length === 0) {
-
+        if (!metas.length) {
             return res.status(404).json({
                 message: 'Meta não encontrada.'
             })
-
         }
 
         const meta = metas[0]
 
         const novoValor = Math.min(
-
             Number(meta.valor_atual) + valor,
-
             Number(meta.valor_alvo)
-
         )
 
-        const novoStatus =
-            novoValor >= Number(meta.valor_alvo)
-                ? 'concluida'
-                : 'em_andamento'
+        const novoStatus = novoValor >= Number(meta.valor_alvo)
+            ? 'concluida'
+            : 'em_andamento'
 
         await consultarSQL(
-
             `UPDATE metas
              SET valor_atual = ?, status = ?
              WHERE id_meta = ?`,
-
             [novoValor, novoStatus, id_meta]
-
         )
 
-        sincronizarSemBloquear(meta.id_usuario)
-
         res.json({
-
-            message:
-                novoStatus === 'concluida'
-                    ? 'Valor adicionado e meta concluída!'
-                    : 'Valor adicionado com sucesso!',
-
+            message: novoStatus === 'concluida'
+                ? 'Valor adicionado e meta concluída!'
+                : 'Valor adicionado com sucesso!',
             valor_atual: novoValor,
             status: novoStatus
-
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
-// RETIRAR DINHEIRO DA META
+// RETIRAR VALOR DA META
 // ========================================
 
 app.put('/api/metas/retirar-valor/:id_meta', async (req, res) => {
-
     const { id_meta } = req.params
     const valor = Number(req.body.valor)
 
     if (!valorValido(req.body.valor)) {
-
         return res.status(400).json({
             message: 'Informe um valor válido para retirada.'
         })
-
     }
 
     try {
-
         const metas = await consultarSQL(
-
             'SELECT * FROM metas WHERE id_meta = ?',
-
             [id_meta]
-
         )
 
         if (!metas.length) {
-
             return res.status(404).json({
                 message: 'Meta não encontrada.'
             })
-
         }
 
         const meta = metas[0]
 
         if (valor > Number(meta.valor_atual)) {
-
             return res.status(400).json({
                 message: 'O valor da retirada não pode ser maior que o valor guardado.'
             })
-
         }
 
         const novoValor = Number(meta.valor_atual) - valor
 
-        const status =
-            novoValor >= Number(meta.valor_alvo)
-                ? 'concluida'
-                : 'em_andamento'
+        const status = novoValor >= Number(meta.valor_alvo)
+            ? 'concluida'
+            : 'em_andamento'
 
         await consultarSQL(
-
             `UPDATE metas
              SET valor_atual = ?, status = ?
              WHERE id_meta = ?`,
-
             [novoValor, status, id_meta]
-
         )
 
         res.json({
-
             message: 'Valor retirado com sucesso!',
             valor_atual: novoValor,
             status
-
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -778,7 +556,6 @@ app.put('/api/metas/retirar-valor/:id_meta', async (req, res) => {
 // ========================================
 
 app.put('/api/metas/:id_meta', async (req, res) => {
-
     const { id_meta } = req.params
 
     const {
@@ -793,39 +570,31 @@ app.put('/api/metas/:id_meta', async (req, res) => {
         !valorValido(valor_alvo) ||
         !valorValido(valor_atual, true)
     ) {
-
         return res.status(400).json({
             message: 'Informe dados válidos para a meta.'
         })
-
     }
 
     const objetivo = Number(valor_alvo)
     const atual = Number(valor_atual)
 
-    const status =
-        atual >= objetivo ? 'concluida' : 'em_andamento'
+    const status = atual >= objetivo
+        ? 'concluida'
+        : 'em_andamento'
 
     try {
-
         const metas = await consultarSQL(
-
             'SELECT id_usuario FROM metas WHERE id_meta = ?',
-
             [id_meta]
-
         )
 
         if (!metas.length) {
-
             return res.status(404).json({
                 message: 'Meta não encontrada.'
             })
-
         }
 
         await consultarSQL(
-
             `UPDATE metas
              SET titulo = ?,
                  valor_alvo = ?,
@@ -833,7 +602,6 @@ app.put('/api/metas/:id_meta', async (req, res) => {
                  cor_destaque = ?,
                  status = ?
              WHERE id_meta = ?`,
-
             [
                 titulo,
                 objetivo,
@@ -842,23 +610,17 @@ app.put('/api/metas/:id_meta', async (req, res) => {
                 status,
                 id_meta
             ]
-
         )
-
-        sincronizarSemBloquear(metas[0].id_usuario)
 
         res.json({
             message: 'Meta atualizada com sucesso!'
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -866,23 +628,16 @@ app.put('/api/metas/:id_meta', async (req, res) => {
 // ========================================
 
 app.delete('/api/metas/:id_meta', async (req, res) => {
-
     try {
-
         const resultado = await consultarSQL(
-
             'DELETE FROM metas WHERE id_meta = ?',
-
             [req.params.id_meta]
-
         )
 
         if (!resultado.affectedRows) {
-
             return res.status(404).json({
                 message: 'Meta não encontrada.'
             })
-
         }
 
         res.json({
@@ -890,13 +645,10 @@ app.delete('/api/metas/:id_meta', async (req, res) => {
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -904,7 +656,6 @@ app.delete('/api/metas/:id_meta', async (req, res) => {
 // ========================================
 
 app.post('/api/transacoes', async (req, res) => {
-
     const {
         id_usuario,
         id_categoria,
@@ -920,27 +671,17 @@ app.post('/api/transacoes', async (req, res) => {
         !descricao ||
         !data_transacao
     ) {
-
         return res.status(400).json({
             message: 'Preencha todos os campos corretamente.'
         })
-
     }
 
     try {
-
         const resultado = await consultarSQL(
-
             `INSERT INTO transacoes
-             (
-                id_usuario,
-                id_categoria,
-                valor,
-                descricao,
-                data_transacao
-             )
+             (id_usuario, id_categoria, valor,
+              descricao, data_transacao)
              VALUES (?, ?, ?, ?, ?)`,
-
             [
                 id_usuario,
                 id_categoria,
@@ -948,57 +689,18 @@ app.post('/api/transacoes', async (req, res) => {
                 descricao,
                 data_transacao
             ]
-
         )
 
-        let badge = null
-        let badge_status = 'sincronizada'
-
-        try {
-
-            await sincronizarBadges(id_usuario)
-
-            const conquistas = await chamarBadges(
-
-                'GET',
-
-                `/api/interno/conquistas/${Number(id_usuario)}`
-
-            )
-
-            badge = conquistas.find(
-                conquista =>
-                    conquista.badgeId === 'primeira_transacao'
-            ) || null
-
-        } catch (erro) {
-
-            badge_status = 'pendente'
-
-            console.warn(
-                'Transação salva; badges pendentes:',
-                erro.message
-            )
-
-        }
-
         res.status(201).json({
-
             message: 'Transação criada com sucesso!',
-            id_transacao: resultado.insertId,
-            badge_status,
-            badge
-
+            id_transacao: resultado.insertId
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -1006,11 +708,8 @@ app.post('/api/transacoes', async (req, res) => {
 // ========================================
 
 app.get('/api/transacoes/:id_usuario', async (req, res) => {
-
     try {
-
         const transacoes = await consultarSQL(
-
             `SELECT
                 t.id_transacao,
                 t.valor,
@@ -1023,21 +722,16 @@ app.get('/api/transacoes/:id_usuario', async (req, res) => {
                 ON t.id_categoria = c.id_categoria
              WHERE t.id_usuario = ?
              ORDER BY t.data_transacao DESC`,
-
             [req.params.id_usuario]
-
         )
 
         res.json(transacoes)
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -1045,7 +739,6 @@ app.get('/api/transacoes/:id_usuario', async (req, res) => {
 // ========================================
 
 app.put('/api/transacoes/:id_transacao', async (req, res) => {
-
     const {
         id_categoria,
         valor,
@@ -1054,16 +747,13 @@ app.put('/api/transacoes/:id_transacao', async (req, res) => {
     } = req.body
 
     try {
-
         const resultado = await consultarSQL(
-
             `UPDATE transacoes
              SET id_categoria = ?,
                  valor = ?,
                  descricao = ?,
                  data_transacao = ?
              WHERE id_transacao = ?`,
-
             [
                 id_categoria,
                 valor,
@@ -1071,15 +761,12 @@ app.put('/api/transacoes/:id_transacao', async (req, res) => {
                 data_transacao,
                 req.params.id_transacao
             ]
-
         )
 
         if (!resultado.affectedRows) {
-
             return res.status(404).json({
                 message: 'Transação não encontrada.'
             })
-
         }
 
         res.json({
@@ -1087,13 +774,10 @@ app.put('/api/transacoes/:id_transacao', async (req, res) => {
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -1101,23 +785,16 @@ app.put('/api/transacoes/:id_transacao', async (req, res) => {
 // ========================================
 
 app.delete('/api/transacoes/:id_transacao', async (req, res) => {
-
     try {
-
         const resultado = await consultarSQL(
-
             'DELETE FROM transacoes WHERE id_transacao = ?',
-
             [req.params.id_transacao]
-
         )
 
         if (!resultado.affectedRows) {
-
             return res.status(404).json({
                 message: 'Transação não encontrada.'
             })
-
         }
 
         res.json({
@@ -1125,13 +802,10 @@ app.delete('/api/transacoes/:id_transacao', async (req, res) => {
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
@@ -1139,263 +813,207 @@ app.delete('/api/transacoes/:id_transacao', async (req, res) => {
 // ========================================
 
 app.get('/api/categorias', async (req, res) => {
-
     try {
-
         const categorias = await consultarSQL(
-
-            `SELECT *
-             FROM categorias
+            `SELECT * FROM categorias
              ORDER BY tipo, nome`
-
         )
 
         res.json(categorias)
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
-// DASHBOARD - RESUMO FINANCEIRO
+// DASHBOARD FINANCEIRO
 // ========================================
 
 app.get('/api/dashboard/:id_usuario', async (req, res) => {
-
     try {
-
         const resultados = await consultarSQL(
-
             `SELECT
+                COALESCE(SUM(
+                    CASE WHEN c.tipo = 'receita'
+                    THEN t.valor ELSE 0 END
+                ), 0) AS total_receitas,
 
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN c.tipo = 'receita'
-                            THEN t.valor
-                            ELSE 0
-                        END
-                    ), 0
-                ) AS total_receitas,
-
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN c.tipo = 'despesa'
-                            THEN t.valor
-                            ELSE 0
-                        END
-                    ), 0
-                ) AS total_despesas
+                COALESCE(SUM(
+                    CASE WHEN c.tipo = 'despesa'
+                    THEN t.valor ELSE 0 END
+                ), 0) AS total_despesas
 
              FROM transacoes t
-
              JOIN categorias c
                 ON t.id_categoria = c.id_categoria
-
              WHERE t.id_usuario = ?`,
-
             [req.params.id_usuario]
-
         )
 
-        const receitas = Number(
-            resultados[0].total_receitas
-        )
-
-        const despesas = Number(
-            resultados[0].total_despesas
-        )
+        const receitas = Number(resultados[0].total_receitas)
+        const despesas = Number(resultados[0].total_despesas)
 
         res.json({
-
             total_receitas: receitas,
             total_despesas: despesas,
             saldo: receitas - despesas
-
         })
 
     } catch (erro) {
-
         res.status(500).json({
             error: erro.message
         })
-
     }
-
 })
 
 // ========================================
-// DASHBOARD - GASTOS POR CATEGORIA
+// GASTOS POR CATEGORIA
 // ========================================
 
-app.get(
-    '/api/dashboard/:id_usuario/gastos-categoria',
-    async (req, res) => {
+app.get('/api/dashboard/:id_usuario/gastos-categoria', async (req, res) => {
+    try {
+        const resultados = await consultarSQL(
+            `SELECT
+                c.nome AS categoria,
+                COALESCE(SUM(t.valor), 0) AS total
+             FROM transacoes t
+             JOIN categorias c
+                ON t.id_categoria = c.id_categoria
+             WHERE t.id_usuario = ?
+             AND c.tipo = 'despesa'
+             GROUP BY c.id_categoria, c.nome
+             ORDER BY total DESC`,
+            [req.params.id_usuario]
+        )
 
-        try {
+        res.json(resultados)
 
-            const resultados = await consultarSQL(
-
-                `SELECT
-                    c.nome AS categoria,
-                    COALESCE(SUM(t.valor), 0) AS total
-
-                 FROM transacoes t
-
-                 JOIN categorias c
-                    ON t.id_categoria = c.id_categoria
-
-                 WHERE t.id_usuario = ?
-                 AND c.tipo = 'despesa'
-
-                 GROUP BY
-                    c.id_categoria,
-                    c.nome
-
-                 ORDER BY total DESC`,
-
-                [req.params.id_usuario]
-
-            )
-
-            res.json(resultados)
-
-        } catch (erro) {
-
-            res.status(500).json({
-                error: erro.message
-            })
-
-        }
-
+    } catch (erro) {
+        res.status(500).json({
+            error: erro.message
+        })
     }
-)
+})
 
 // ========================================
-// DASHBOARD - GASTOS MENSAIS
+// GASTOS MENSAIS
 // ========================================
 
-app.get(
-    '/api/dashboard/:id_usuario/gastos-mensais',
-    async (req, res) => {
+app.get('/api/dashboard/:id_usuario/gastos-mensais', async (req, res) => {
+    try {
+        const resultados = await consultarSQL(
+            `SELECT
+                YEAR(t.data_transacao) AS ano,
+                MONTH(t.data_transacao) AS mes,
+                COALESCE(SUM(t.valor), 0) AS total
 
-        try {
+             FROM transacoes t
+             JOIN categorias c
+                ON t.id_categoria = c.id_categoria
+             WHERE t.id_usuario = ?
+             AND c.tipo = 'despesa'
 
-            const resultados = await consultarSQL(
+             GROUP BY
+                YEAR(t.data_transacao),
+                MONTH(t.data_transacao)
 
-                `SELECT
-                    YEAR(t.data_transacao) AS ano,
-                    MONTH(t.data_transacao) AS mes,
-                    COALESCE(SUM(t.valor), 0) AS total
+             ORDER BY ano, mes`,
+            [req.params.id_usuario]
+        )
 
-                 FROM transacoes t
+        res.json(resultados)
 
-                 JOIN categorias c
-                    ON t.id_categoria = c.id_categoria
-
-                 WHERE t.id_usuario = ?
-                 AND c.tipo = 'despesa'
-
-                 GROUP BY
-                    YEAR(t.data_transacao),
-                    MONTH(t.data_transacao)
-
-                 ORDER BY ano, mes`,
-
-                [req.params.id_usuario]
-
-            )
-
-            res.json(resultados)
-
-        } catch (erro) {
-
-            res.status(500).json({
-                error: erro.message
-            })
-
-        }
-
+    } catch (erro) {
+        res.status(500).json({
+            error: erro.message
+        })
     }
-)
+})
 
 // ========================================
-// LISTAR BADGES DO USUÁRIO
+// CATÁLOGO DE BADGES - JAVA + MONGODB
+// ========================================
+
+app.get('/api/badges/catalogo', async (req, res) => {
+    try {
+        const catalogo = await chamarBadges(
+            'GET',
+            '/api/badges'
+        )
+
+        res.json(catalogo)
+
+    } catch (erro) {
+        console.error(
+            'Erro ao consultar catálogo de badges:',
+            erro.message
+        )
+
+        res.status(503).json({
+            message: 'Catálogo de badges indisponível no momento.'
+        })
+    }
+})
+
+// ========================================
+// BADGES CONQUISTADAS PELO USUÁRIO
 // ========================================
 
 app.get('/api/badges/:id_usuario', async (req, res) => {
-
     const idUsuario = Number(req.params.id_usuario)
 
     if (!idValido(idUsuario)) {
-
         return res.status(400).json({
             message: 'Usuário inválido.'
         })
-
     }
 
     try {
-
-        // Verifica se o usuário existe.
-
         const usuarios = await consultarSQL(
-
             `SELECT id_usuario
              FROM usuarios
              WHERE id_usuario = ?`,
-
             [idUsuario]
-
         )
 
         if (!usuarios.length) {
-
             return res.status(404).json({
                 message: 'Usuário não encontrado.'
             })
-
         }
 
-        // Verifica todas as conquistas.
+        const [catalogo, idsConquistados] = await Promise.all([
+            chamarBadges('GET', '/api/badges'),
+            sincronizarBadges(idUsuario)
+        ])
 
-        await sincronizarBadges(idUsuario)
+        if (!Array.isArray(catalogo)) {
+            throw new Error('Formato inesperado do catálogo Java.')
+        }
 
-        // Consulta o MongoDB através do Java.
+        const conquistados = new Set(idsConquistados)
 
-        const conquistas = await chamarBadges(
+        const badges = catalogo.map(badge => ({
+            ...badge,
+            conquistada: conquistados.has(badge.id),
+            desbloqueada: conquistados.has(badge.id)
+        }))
 
-            'GET',
-
-            `/api/interno/conquistas/${idUsuario}`
-
-        )
-
-        res.json(conquistas)
+        res.json(badges)
 
     } catch (erro) {
-
         console.error(
             'Erro ao consultar badges:',
             erro.message
         )
 
         res.status(503).json({
-
-            message:
-                'Badges indisponíveis. Tente novamente em instantes.'
-
+            message: 'Badges indisponíveis. Verifique a conexão com Java e MySQL.'
         })
-
     }
-
 })
 
 // ========================================
@@ -1403,9 +1021,7 @@ app.get('/api/badges/:id_usuario', async (req, res) => {
 // ========================================
 
 app.listen(PORT, () => {
-
     console.log(
         `Servidor OinkSafe rodando na porta ${PORT}`
     )
-
 })
