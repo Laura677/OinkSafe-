@@ -1,11 +1,13 @@
 # OinkSafe
 
 ## Desenvolvedores:
-Leonardo Fernandez Ribeiro
+Laura Cristini da Silva 
 
 Lucas Henrik Rodrigues de Meira
 
 Luciano Gobetti Filho
 
-Acesso ao Site: https://mestrecodacio.github.io/OinkSafe/
+Acesso ao site:
+https://oink-safe.vercel.app/
 
+Orientador: Bruno Zolotareff
